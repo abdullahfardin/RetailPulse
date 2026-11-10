@@ -6,6 +6,7 @@ const { initDatabase } = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const salesRoutes = require('./routes/salesRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,6 +33,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Fallback for Single-Page Application behavior
 app.use((req, res, next) => {
@@ -65,6 +67,7 @@ async function startServer() {
       console.log(` Database: SQLite (ACID Compliant)`);
       console.log(` Auth & Product Modules: ACTIVE (Abdullah Al Junaed)`);
       console.log(` Sales & Billing Module: ACTIVE (Nazrin Sultana Omi)`);
+      console.log(` Dashboard & Analytics:  ACTIVE (Md Ebrahim Hossen)`);
       console.log(`====================================================`);
     });
   } catch (err) {
