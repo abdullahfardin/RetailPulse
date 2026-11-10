@@ -80,6 +80,28 @@ RetailPulse is an intelligent retail management system designed for small retail
 
 ---
 
+## Implemented in this Milestone: Md Ebrahim Hossen (Member 3)
+
+### 4. Core Functional Requirement 3: Inventory Planning, Real-Time Dashboard & Analytics (FR 16 & FR 17)
+- **Executive Analytics & KPI Endpoints (`GET /api/dashboard/stats`):**
+  - Real-time SQL aggregations for today's revenue, order counts, wholesale cost vs retail valuation, and potential profit margins.
+- **Visual Charting Endpoints (`GET /api/dashboard/sales-trend`, `GET /api/dashboard/category-distribution`):**
+  - Daily sales timeline (last 7 and 30 days) feeding dual-axis Chart.js line charts (Revenue in BDT + Transaction Volume).
+  - Product category breakdown feeding interactive Chart.js doughnut charts.
+- **Top-Selling Products Leaderboard (`GET /api/dashboard/top-products`):**
+  - SQL ranking query linking `products`, `sale_items`, and `sales` to surface the top 5 highest-velocity retail items.
+- **Inventory Planning & Reorder Engine (FR 16 - `GET /api/dashboard/low-stock-alerts`):**
+  - Automated threshold evaluation: flags products where `stock <= min_stock_threshold`.
+  - Reorder calculation: calculates shortage deficit and suggests optimal reorder batch size factoring a safety stock buffer.
+- **Audit Trail Ledger (FR 14 - `GET /api/dashboard/audit-logs`):**
+  - Chronological movement history of all stock additions, deductions, sales, and corrections from `inventory_logs`.
+- **Business Report Export (FR 17 - `GET /api/dashboard/export-report`):**
+  - Generates downloadable CSV reports containing full store inventory, pricing, and stock health.
+- **Interactive Dashboard Interface (`/dashboard.html`):**
+  - Responsive executive overview equipped with Chart.js visualizations, top-seller leaderboard, reorder warning table, and audit trail ledger.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
