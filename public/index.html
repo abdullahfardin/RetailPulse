@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetailPulse - Product & Inventory Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Main Top Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-rp sticky-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <div class="brand-icon">RP</div>
+        <div>
+          <span class="fw-bold fs-5 text-dark">RetailPulse</span>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size: 0.68rem;">v1.0 Capstone</span>
+        </div>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+          <li class="nav-item">
+            <a class="nav-link active-tab" href="/index.html">
+              <i class="bi bi-box-seam me-1"></i> Products & Stock
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-muted" href="#" onclick="alert('Sales & Billing Transaction module is assigned to Member 2 (Nazrin Sultana Omi)'); return false;">
+              <i class="bi bi-cart3 me-1"></i> Sales & POS
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-muted" href="#" onclick="alert('Dashboard Analytics & Reorder Alert module is assigned to Member 3 (Md Ebrahim Hossen)'); return false;">
+              <i class="bi bi-graph-up-arrow me-1"></i> Dashboard & Analytics
+            </a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-3">
+          <!-- Shop Badge -->
+          <div class="px-3 py-1 bg-light rounded-pill border d-flex align-items-center gap-2">
+            <i class="bi bi-shop text-primary"></i>
+            <span class="small fw-semibold text-dark" id="navShopName">Loading Shop...</span>
+          </div>
+
+          <!-- User Profile & Logout -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle text-secondary"></i>
+              <span id="navUserName">Loading User...</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+              <li><h6 class="dropdown-header">Module Owner: Abdullah Al Junaed</h6></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" id="btnLogout"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="container-fluid px-4 py-4">
+    <!-- Breadcrumb & Title Section -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
+      <div>
+        <h3 class="fw-bold mb-1">Product & Inventory Catalog</h3>
+        <p class="text-muted mb-0 small">
+          <span class="badge bg-secondary-subtle text-secondary me-2">Module 1 (Compulsory & Feature 1)</span>
+          Real-time database inventory tracking, stock adjustments, and product CRUD.
+        </p>
+      </div>
+      <div>
+        <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" id="btnOpenAddModal">
+          <i class="bi bi-plus-circle"></i> Add New Product
+        </button>
+      </div>
+    </div>
+
+    <!-- Stat Cards Overview -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-label">Total Products</div>
+              <div class="stat-value" id="statTotalProducts">0</div>
+            </div>
+            <div class="stat-icon bg-primary-subtle text-primary">
+              <i class="bi bi-boxes"></i>
+            </div>
+          </div>
+          <small class="text-muted mt-2 d-block">Active SKUs in database</small>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-label">Total Stock Units</div>
+              <div class="stat-value" id="statTotalUnits">0</div>
+            </div>
+            <div class="stat-icon bg-success-subtle text-success">
+              <i class="bi bi-stack"></i>
+            </div>
+          </div>
+          <small class="text-muted mt-2 d-block">On-hand physical items</small>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-label">Inventory Cost Value</div>
+              <div class="stat-value" id="statCostValue">৳0</div>
+            </div>
+            <div class="stat-icon bg-info-subtle text-info">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+          </div>
+          <small class="text-muted mt-2 d-block">Calculated at wholesale cost</small>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-label">Stock Alerts</div>
+              <div class="stat-value text-danger" id="statAlertCount">0</div>
+            </div>
+            <div class="stat-icon bg-danger-subtle text-danger">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+          </div>
+          <small class="text-muted mt-2 d-block" id="statAlertSub">Low or out of stock items</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter and Search Toolbar -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body p-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-4">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search by name or SKU...">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" id="categoryFilter">
+              <option value="All">All Categories</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" id="statusFilter">
+              <option value="">All Stock Statuses</option>
+              <option value="IN_STOCK">In Stock (> min)</option>
+              <option value="LOW_STOCK">Low Stock (≤ min threshold)</option>
+              <option value="OUT_OF_STOCK">Out of Stock (0 units)</option>
+            </select>
+          </div>
+          <div class="col-md-2 text-md-end">
+            <button class="btn btn-outline-secondary w-100" id="btnRefresh">
+              <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Table Card -->
+    <div class="card card-table">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 120px;">SKU</th>
+              <th scope="col">Product Name</th>
+              <th scope="col">Category</th>
+              <th scope="col" class="text-end">Cost (৳)</th>
+              <th scope="col" class="text-end">Price (৳)</th>
+              <th scope="col" class="text-center">Margin</th>
+              <th scope="col" class="text-center">Stock Level</th>
+              <th scope="col" class="text-center" style="width: 160px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                Loading inventory records from database...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Add / Edit Product Modal -->
+  <div class="modal fade" id="modalProduct" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="formProduct">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" id="modalProductTitle">Add New Product</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <input type="hidden" id="prodId">
+            <div id="modalAlert" class="alert alert-danger py-2 px-3 d-none mb-3"></div>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="prodSku" class="form-label small fw-semibold">SKU / Code</label>
+                <input type="text" class="form-control" id="prodSku" placeholder="e.g. BEV-003 (Auto if blank)">
+                <small class="text-muted">Unique identifier for product</small>
+              </div>
+              <div class="col-md-8">
+                <label for="prodName" class="form-label small fw-semibold">Product Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="prodName" placeholder="e.g. Coca-Cola 500ml" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="prodCategory" class="form-label small fw-semibold">Category <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="prodCategory" placeholder="e.g. Beverages, Snacks, Groceries" required list="categoryList">
+                <datalist id="categoryList"></datalist>
+              </div>
+              <div class="col-md-6">
+                <label for="prodUnit" class="form-label small fw-semibold">Packaging Unit</label>
+                <input type="text" class="form-control" id="prodUnit" placeholder="e.g. pcs, bottle, pack, kg" value="pcs">
+              </div>
+
+              <div class="col-md-6">
+                <label for="prodCostPrice" class="form-label small fw-semibold">Cost Price (৳) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text">৳</span>
+                  <input type="number" step="0.01" min="0" class="form-control" id="prodCostPrice" placeholder="0.00" required>
+                </div>
+                <small class="text-muted">Wholesale purchase cost</small>
+              </div>
+              <div class="col-md-6">
+                <label for="prodSellingPrice" class="form-label small fw-semibold">Selling Price (৳) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text">৳</span>
+                  <input type="number" step="0.01" min="0" class="form-control" id="prodSellingPrice" placeholder="0.00" required>
+                </div>
+                <small class="text-muted">Retail selling price</small>
+              </div>
+
+              <div class="col-md-6" id="initialStockContainer">
+                <label for="prodStock" class="form-label small fw-semibold">Initial Stock Quantity</label>
+                <input type="number" min="0" class="form-control" id="prodStock" placeholder="0" value="0">
+                <small class="text-muted">Current inventory on hand</small>
+              </div>
+              <div class="col-md-6">
+                <label for="prodMinThreshold" class="form-label small fw-semibold">Low-Stock Alert Threshold</label>
+                <input type="number" min="0" class="form-control" id="prodMinThreshold" placeholder="5" value="5">
+                <small class="text-muted">Trigger warning when stock drops to or below this</small>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btnSaveProduct">
+              <i class="bi bi-check-circle me-1"></i> Save Product
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Adjustment Modal -->
+  <div class="modal fade" id="modalAdjustStock" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formAdjustStock">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Manual Stock Adjustment</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <input type="hidden" id="adjProdId">
+            <div id="adjAlert" class="alert alert-danger py-2 px-3 d-none mb-3"></div>
+
+            <div class="p-3 bg-light rounded-3 mb-3 border">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-bold" id="adjProdName">-</span>
+                <span class="badge bg-secondary font-monospace" id="adjProdSku">-</span>
+              </div>
+              <div class="small text-muted">
+                Current Stock on Hand: <strong class="text-dark fs-6" id="adjCurrentStock">0</strong> units
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Adjustment Type</label>
+              <div class="d-flex gap-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="adjAction" id="adjAdd" value="ADD" checked>
+                  <label class="form-check-label text-success fw-semibold" for="adjAdd">
+                    <i class="bi bi-plus-circle me-1"></i> Restock (+)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="adjAction" id="adjDeduct" value="DEDUCT">
+                  <label class="form-check-label text-danger fw-semibold" for="adjDeduct">
+                    <i class="bi bi-dash-circle me-1"></i> Deduct / Damage (-)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="adjQty" class="form-label small fw-semibold">Quantity to Adjust</label>
+              <input type="number" min="1" class="form-control" id="adjQty" placeholder="e.g. 10" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="adjReason" class="form-label small fw-semibold">Reason / Audit Note</label>
+              <input type="text" class="form-control" id="adjReason" placeholder="e.g. Supplier delivery, Damaged batch, Count correction">
+            </div>
+
+            <div class="alert alert-secondary py-2 px-3 mb-0 small">
+              Estimated New Stock Level: <strong id="adjPreviewStock">0</strong> units
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btnSaveAdjust">
+              <i class="bi bi-arrow-repeat me-1"></i> Confirm Stock Adjustment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast align-items-center text-white bg-dark border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage">Action completed successfully.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/products.js"></script>
+</body>
+</html>
