@@ -34,17 +34,18 @@ async function runSalesTests() {
     }
   };
 
-  // Create two designated test products for sale
+  // Create two designated test products for sale (using timestamped SKUs for test idempotency)
+  const timestamp = Date.now().toString().slice(-4);
   const p1Res = await db.runAsync(`
     INSERT INTO products (shop_id, sku, name, category, cost_price, selling_price, stock_quantity, min_stock_threshold, unit)
-    VALUES (?, 'OMI-BEV-01', 'Omi Mineral Water (500ml)', 'Beverages', 15.0, 25.0, 30, 5, 'bottle')
-  `, [shop.id]);
+    VALUES (?, ?, 'Omi Mineral Water (500ml)', 'Beverages', 15.0, 25.0, 30, 5, 'bottle')
+  `, [shop.id, `OMI-BEV-${timestamp}`]);
   const p1Id = p1Res.lastID;
 
   const p2Res = await db.runAsync(`
     INSERT INTO products (shop_id, sku, name, category, cost_price, selling_price, stock_quantity, min_stock_threshold, unit)
-    VALUES (?, 'OMI-SNK-01', 'Omi Crisp Chips', 'Snacks', 20.0, 30.0, 10, 3, 'pack')
-  `, [shop.id]);
+    VALUES (?, ?, 'Omi Crisp Chips', 'Snacks', 20.0, 30.0, 10, 3, 'pack')
+  `, [shop.id, `OMI-SNK-${timestamp}`]);
   const p2Id = p2Res.lastID;
 
   // 2. Test Multi-item Sale (Buy 3 waters @ 25 = 75, Buy 2 chips @ 30 = 60. Subtotal: 135, Discount: 10, Grand Total: 125)
