@@ -33,7 +33,7 @@ RetailPulse is an intelligent retail management system designed for small retail
   - **Password:** `password123`
   - *(A 1-click "Quick Fill" button is integrated on the login screen for quick assessor evaluation).*
 
-### 2. Core Functional Requirement 1: Product & Inventory Management (FR 8)
+### 2. Core Functional Requirement 1: Product & Inventory Management (FR 8) - Abdullah Al Junaed Akond
 - **Relational Database Schema (SQLite / PostgreSQL compatible):**
   - `shops`, `users`, `products`, `inventory_logs`, `sales`, `sale_items`.
 - **Product REST APIs:**
@@ -51,6 +51,32 @@ RetailPulse is an intelligent retail management system designed for small retail
   - Product catalog table with colored status badges (In Stock, Low Stock, Out of Stock).
   - Modals for Product Add/Edit and Stock Restock/Deduct.
   - Interactive toast notifications and input confirmation prompts.
+
+---
+
+## Implemented in this Milestone: Nazrin Sultana Omi (Member 2)
+
+### 3. Core Functional Requirement 2: Sales & Billing Transaction Engine (FR 9, FR 10, FR 14)
+- **Multi-Item Point of Sale (POS) API (`POST /api/sales`):**
+  - Accepts cart items, customer name, payment method (`cash`, `card`, `bkash`/`mfs`), and discount.
+  - Validates stock availability for every requested line item before starting database writes.
+  - Prevents negative stock / overselling.
+- **ACID Database Transactions & Rollback:**
+  - Uses `BEGIN TRANSACTION;` ... `COMMIT;` blocks.
+  - Inserts master transaction record into `sales` table with unique invoice numbering (`INV-XXXXXX-XXX`).
+  - Itemizes every product into `sale_items`.
+  - Atomically decrements product inventory in `products`.
+  - Records an immutable change record in `inventory_logs` with change type `'SALE'`.
+  - If any error occurs or stock is insufficient, triggers `ROLLBACK;` to guarantee zero data corruption.
+- **Sales History & Receipt Breakdown (`GET /api/sales`, `GET /api/sales/:id`):**
+  - Retrieves store transaction history with cashier details, total items sold, and payment summary.
+  - Full receipt reconstruction with itemized pricing, subtotal, and discount.
+- **Point of Sale (POS) Interface (`/sales.html`):**
+  - Dual-pane layout: Product catalog grid with quick-search and category chips on the left; real-time reactive Cart on the right.
+  - Real-time cart calculations (subtotal, live discount deduction, grand total).
+  - Quantity increment/decrement buttons with available-stock limits.
+  - Printable Digital Invoice modal with store header and thermal receipt print styling (`window.print()`).
+  - Sales history modal to inspect and reprint past transaction receipts.
 
 ---
 
