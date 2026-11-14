@@ -1,5 +1,5 @@
 const { generateContent, testGeminiConnection, GEMINI_MODEL } = require('../config/gemini');
-const db = require('../config/database');
+const { db } = require('../config/database');
 
 /**
  * System prompt setting the persona, domain boundaries, and language support
