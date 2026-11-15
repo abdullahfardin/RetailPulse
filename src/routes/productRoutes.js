@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
+const importController = require('../controllers/importController');
 const { authenticateToken } = require('../middleware/auth');
 
 // All product routes require valid JWT authentication
@@ -19,5 +20,8 @@ router.delete('/:id', productController.deleteProduct);
 
 // Stock adjustment endpoint
 router.post('/:id/adjust-stock', productController.adjustStock);
+
+// Transactional Bulk Import endpoint (Task T-2.2 - Omi)
+router.post('/bulk-import', importController.bulkImportProducts);
 
 module.exports = router;
