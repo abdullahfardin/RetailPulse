@@ -9,6 +9,7 @@ const salesRoutes = require('./routes/salesRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const agentRoutes = require('./routes/agentRoutes');
 const forecastRoutes = require('./routes/forecastRoutes');
+const importRoutes = require('./routes/importRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,7 @@ app.use('/api/sales', salesRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/forecast', forecastRoutes);
+app.use('/api/import', importRoutes);
 
 // Fallback for Single-Page Application behavior
 app.use((req, res, next) => {

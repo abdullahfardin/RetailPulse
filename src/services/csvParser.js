@@ -295,8 +295,35 @@ function validateSalesCsv(csvText) {
   };
 }
 
+/**
+ * Generate standard CSV template for Product Catalog imports
+ */
+function getProductCsvTemplate() {
+  return [
+    'sku,name,category,cost_price,selling_price,stock_quantity,min_stock_threshold,unit',
+    'BEV-101,"Pran Frooto Mango Juice (250ml)",Beverages,22.0,25.0,40,10,bottle',
+    'SNK-102,"Kurkure Masala Munch (45g)",Snacks,18.0,20.0,35,12,packet',
+    'GRO-103,"Radhuni Turmeric Powder (200g)",Groceries,85.0,95.0,20,5,pack',
+    'DAI-104,"Farm Fresh Pasteurised Milk (1L)",Dairy,88.0,95.0,15,6,carton'
+  ].join('\n');
+}
+
+/**
+ * Generate standard CSV template for Historical Sales imports
+ */
+function getSalesCsvTemplate() {
+  return [
+    'date,sku,product_name,quantity,unit_price,payment_method,customer_name',
+    '2026-11-01,BEV-101,"Pran Frooto Mango Juice (250ml)",4,25.0,cash,"Walk-in Customer"',
+    '2026-11-01,SNK-102,"Kurkure Masala Munch (45g)",2,20.0,mfs,"Rafiqul Islam"',
+    '2026-11-02,GRO-103,"Radhuni Turmeric Powder (200g)",1,95.0,card,"Farhana Yasmin"'
+  ].join('\n');
+}
+
 module.exports = {
   parseCsvToMatrix,
   validateProductCsv,
-  validateSalesCsv
+  validateSalesCsv,
+  getProductCsvTemplate,
+  getSalesCsvTemplate
 };
