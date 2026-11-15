@@ -136,6 +136,49 @@ async function initDatabase() {
       )
     `);
 
+    // 6. Demand Forecasts table (Module 3 - Ebrahim)
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS forecasts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        shop_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        horizon_days INTEGER NOT NULL, -- 7, 14, or 30 days
+        model_name TEXT NOT NULL, -- 'WEIGHTED_MOVING_AVERAGE', 'SEASONAL_NAIVE'
+        predicted_demand REAL NOT NULL,
+        confidence_lower REAL,
+        confidence_upper REAL,
+        mae_error REAL,
+        rmse_error REAL,
+        wape_error REAL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (shop_id) REFERENCES shops(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+      )
+    `);
+
+    // 7. Reorder Recommendations table (Module 3 - Ebrahim)
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS recommendations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        shop_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        forecast_id INTEGER,
+        current_stock INTEGER NOT NULL,
+        daily_burn_rate REAL NOT NULL,
+        supplier_lead_time_days INTEGER DEFAULT 3,
+        safety_stock INTEGER NOT NULL,
+        reorder_point REAL NOT NULL,
+        suggested_order_qty INTEGER NOT NULL,
+        estimated_cost REAL NOT NULL,
+        priority TEXT DEFAULT 'MEDIUM', -- 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'
+        status TEXT DEFAULT 'PENDING', -- 'PENDING', 'ORDERED', 'DISMISSED'
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (shop_id) REFERENCES shops(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+        FOREIGN KEY (forecast_id) REFERENCES forecasts(id) ON DELETE SET NULL
+      )
+    `);
+
     // Seed default shop and demo user if database is empty
     await seedDemoData();
     console.log('[Database] SQLite schema verified and ready at:', DB_PATH);
