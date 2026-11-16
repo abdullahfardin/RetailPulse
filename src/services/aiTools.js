@@ -1,7 +1,8 @@
 const { db } = require('../config/database');
+const { createPendingConfirmation } = require('./confirmationManager');
 
 /**
- * Gemini Function Calling Declarations (Tools Catalog)
+ * Gemini Function Calling Declarations - Core Retail Tools Catalog
  * Complies with Google Gemini REST API v1beta Schema
  */
 const retailToolDeclarations = [
@@ -73,6 +74,58 @@ const retailToolDeclarations = [
     }
   }
 ];
+
+/**
+ * Sensitive State-Changing Declarations (Protected by Explicit Confirmation Gate)
+ */
+const sensitiveToolDeclarations = [
+  {
+    name: 'deleteProduct',
+    description: 'Request permanent deletion of a product from store inventory. Protected by Explicit Confirmation Protocol.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        identifier: {
+          type: 'STRING',
+          description: 'Product SKU or exact name to delete.'
+        },
+        reason: {
+          type: 'STRING',
+          description: 'Reason for deletion (e.g., discontinued, expired).'
+        }
+      },
+      required: ['identifier']
+    }
+  },
+  {
+    name: 'updateStock',
+    description: 'Request adjusting stock quantity (restock or damage deduction). Protected by Explicit Confirmation Protocol.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        identifier: {
+          type: 'STRING',
+          description: 'Product SKU or exact name.'
+        },
+        actionType: {
+          type: 'STRING',
+          description: 'Either "RESTOCK" (add inventory) or "DEDUCT" (spoilage/damage deduction).'
+        },
+        quantity: {
+          type: 'NUMBER',
+          description: 'Number of units to adjust.'
+        },
+        reason: {
+          type: 'STRING',
+          description: 'Operational justification for stock adjustment.'
+        }
+      },
+      required: ['identifier', 'actionType', 'quantity']
+    }
+  }
+];
+
+const allToolDeclarations = [...retailToolDeclarations, ...sensitiveToolDeclarations];
 
 /**
  * Tool Execution Handlers (Database Queries scoped to authenticated shopId)
@@ -224,23 +277,119 @@ const toolExecutors = {
         gross_revenue: `৳${r.gross_revenue}`
       }))
     };
+  },
+
+  /**
+   * Explicit Confirmation Tool: deleteProduct
+   * Stages action into pending confirmations instead of direct execution
+   */
+  async deleteProduct({ identifier, reason }, shopId, userId = null) {
+    const clean = (identifier || '').trim();
+    const product = await db.getAsync(
+      `SELECT id, sku, name, stock_quantity FROM products WHERE shop_id = ? AND (sku = ? OR name LIKE ?) LIMIT 1`,
+      [shopId, clean, `%${clean}%`]
+    );
+
+    if (!product) {
+      return {
+        success: false,
+        requires_confirmation: false,
+        error: `Product matching "${identifier}" not found in catalog.`
+      };
+    }
+
+    const summary = `Permanently delete product "${product.name}" (${product.sku}, On-hand: ${product.stock_quantity})${reason ? ` - Reason: ${reason}` : ''}`;
+    const pending = createPendingConfirmation(shopId, userId, 'deleteProduct', { productId: product.id, sku: product.sku }, summary);
+
+    return {
+      requires_confirmation: true,
+      token: pending.token,
+      action: 'deleteProduct',
+      summary: pending.summary,
+      warning: pending.warning,
+      expires_in_seconds: pending.expires_in_seconds,
+      product: {
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        stock_quantity: product.stock_quantity
+      }
+    };
+  },
+
+  /**
+   * Explicit Confirmation Tool: updateStock
+   * Stages adjustment into pending confirmations instead of direct execution
+   */
+  async updateStock({ identifier, actionType, quantity, reason }, shopId, userId = null) {
+    const clean = (identifier || '').trim();
+    const product = await db.getAsync(
+      `SELECT id, sku, name, stock_quantity FROM products WHERE shop_id = ? AND (sku = ? OR name LIKE ?) LIMIT 1`,
+      [shopId, clean, `%${clean}%`]
+    );
+
+    if (!product) {
+      return {
+        success: false,
+        requires_confirmation: false,
+        error: `Product matching "${identifier}" not found in catalog.`
+      };
+    }
+
+    const qty = parseInt(quantity, 10);
+    if (isNaN(qty) || qty <= 0) {
+      return {
+        success: false,
+        requires_confirmation: false,
+        error: 'Quantity must be a positive integer.'
+      };
+    }
+
+    const act = (actionType || 'RESTOCK').toUpperCase();
+    const isDeduct = act === 'DEDUCT';
+    const summary = `${isDeduct ? 'Deduct' : 'Restock'} ${qty} units for "${product.name}" (Current stock: ${product.stock_quantity})${reason ? ` - Reason: ${reason}` : ''}`;
+
+    const pending = createPendingConfirmation(shopId, userId, 'updateStock', {
+      productId: product.id,
+      sku: product.sku,
+      actionType: isDeduct ? 'DEDUCT' : 'ADD',
+      quantity: qty,
+      reason
+    }, summary);
+
+    return {
+      requires_confirmation: true,
+      token: pending.token,
+      action: 'updateStock',
+      summary: pending.summary,
+      warning: pending.warning,
+      expires_in_seconds: pending.expires_in_seconds,
+      product: {
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        current_stock: product.stock_quantity
+      }
+    };
   }
 };
 
 /**
  * Execute tool call with parameter and shop isolation
  */
-async function executeRetailTool(name, args = {}, shopId) {
+async function executeRetailTool(name, args = {}, shopId, userId = null) {
   const executor = toolExecutors[name];
   if (!executor) {
     throw new Error(`Unknown retail tool: "${name}"`);
   }
 
-  return await executor(args, shopId);
+  return await executor(args, shopId, userId);
 }
 
 module.exports = {
   retailToolDeclarations,
+  sensitiveToolDeclarations,
+  allToolDeclarations,
   toolExecutors,
   executeRetailTool
 };
