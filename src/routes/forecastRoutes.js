@@ -10,4 +10,10 @@ router.use(authenticateToken);
 router.get('/time-series/:productId', forecastController.getProductTimeSeries);
 router.get('/category-series/:category', forecastController.getCategoryTimeSeries);
 
+// Demand Forecasting Engine endpoints (Task T-3.3)
+router.post('/generate/:productId', forecastController.generateForecast);
+router.post('/generate-all', forecastController.generateAllForecasts);
+router.get('/product/:productId', forecastController.getProductForecastHistory);
+router.get('/latest', forecastController.getLatestCatalogForecasts);
+
 module.exports = router;
