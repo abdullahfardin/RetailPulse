@@ -179,6 +179,35 @@ async function initDatabase() {
       )
     `);
 
+    // 8. AI Action & Audit Logs table (Module 1 - Junaed, Task T-1.4)
+    await db.runAsync(`
+      CREATE TABLE IF NOT EXISTS ai_action_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        shop_id INTEGER NOT NULL,
+        user_id INTEGER,
+        session_id TEXT,
+        user_prompt TEXT NOT NULL,
+        model_response TEXT,
+        tools_called TEXT, -- JSON array of tools invoked and their arguments
+        tool_results TEXT, -- JSON array of results returned by tools
+        requires_confirmation INTEGER DEFAULT 0, -- 1 if safety confirmation triggered, 0 otherwise
+        confirmation_token TEXT, -- Token if generated (e.g. CONF-XXXX)
+        confirmation_status TEXT DEFAULT 'NONE', -- 'NONE', 'PENDING', 'CONFIRMED', 'CANCELLED'
+        tokens_used INTEGER DEFAULT 0, -- Estimated or API token count
+        latency_ms INTEGER DEFAULT 0, -- Processing time in milliseconds
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (shop_id) REFERENCES shops(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+
+    await db.runAsync(`
+      CREATE INDEX IF NOT EXISTS idx_ai_logs_shop_created ON ai_action_logs(shop_id, created_at);
+    `);
+    await db.runAsync(`
+      CREATE INDEX IF NOT EXISTS idx_ai_logs_token ON ai_action_logs(confirmation_token);
+    `);
+
     // Seed default shop and demo user if database is empty
     await seedDemoData();
     console.log('[Database] SQLite schema verified and ready at:', DB_PATH);

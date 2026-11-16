@@ -1,6 +1,11 @@
 const { generateContent, testGeminiConnection, GEMINI_MODEL } = require('../config/gemini');
 const { db } = require('../config/database');
-const { retailToolDeclarations, sensitiveToolDeclarations, allToolDeclarations, executeRetailTool } = require('../services/aiTools');
+const {
+  retailToolDeclarations,
+  sensitiveToolDeclarations,
+  allToolDeclarations,
+  executeRetailTool
+} = require('../services/aiTools');
 const {
   createPendingConfirmation,
   getPendingConfirmation,
@@ -8,6 +13,13 @@ const {
   cancelPendingConfirmation,
   executeConfirmedAction
 } = require('../services/confirmationManager');
+const {
+  logAiAction,
+  updateConfirmationStatus,
+  getAuditLogs,
+  getAuditLogById,
+  getAuditSummary
+} = require('../services/aiAuditLogger');
 
 /**
  * System prompt setting the persona, domain boundaries, and language support
@@ -52,7 +64,7 @@ async function getAgentStatus(req, res) {
     res.json({
       success: true,
       service: 'RetailPulse Agentic AI Engine',
-      version: '1.2.0',
+      version: '1.4.0',
       model: GEMINI_MODEL,
       provider: 'Google Gemini Flash API',
       status: connectivity.status || 'READY',
@@ -63,7 +75,8 @@ async function getAgentStatus(req, res) {
         'Stock Depletion & Reorder Advice',
         'Bilingual Support (English & Bangla)',
         'Autonomous Database Tool Calling',
-        'Two-Phase Explicit Confirmation Safety Gate (FR 13 & FR 14)'
+        'Two-Phase Explicit Confirmation Safety Gate (FR 13 & FR 14)',
+        'Audit Trail & Observability Logging (Task T-1.4)'
       ],
       tools: retailToolDeclarations.map(t => ({
         name: t.name,
@@ -201,11 +214,12 @@ async function resolveOfflineIntent(message, shopId, userId = null) {
 
 /**
  * POST /api/agent/chat
- * Conversational endpoint for retail assistance with autonomous tool calling & safety confirmation gate
+ * Conversational endpoint for retail assistance with autonomous tool calling, safety confirmation gate & audit logging
  */
 async function processChat(req, res) {
+  const startTime = Date.now();
   try {
-    const { message, history = [] } = req.body;
+    const { message, history = [], session_id = null } = req.body;
     const shopId = req.user.shop_id;
     const user = req.user;
 
@@ -223,11 +237,31 @@ async function processChat(req, res) {
     if (cancelMatch) {
       const token = cancelMatch[1].toUpperCase();
       const cancelled = cancelPendingConfirmation(token, shopId);
+      if (cancelled) {
+        await updateConfirmationStatus(token, 'CANCELLED');
+      }
+
+      const replyText = cancelled 
+        ? `[Action Cancelled] The pending operation with token ${token} was safely cancelled.`
+        : `No active pending operation found with token ${token}.`;
+
+      const latencyMs = Date.now() - startTime;
+      await logAiAction({
+        shopId,
+        userId: user.id,
+        sessionId: session_id,
+        userPrompt: trimmedMessage,
+        modelResponse: replyText,
+        requiresConfirmation: 0,
+        confirmationToken: token,
+        confirmationStatus: cancelled ? 'CANCELLED' : 'NONE',
+        tokensUsed: Math.ceil((trimmedMessage.length + replyText.length) / 4),
+        latencyMs
+      });
+
       return res.json({
         success: true,
-        message: cancelled 
-          ? `[Action Cancelled] The pending operation with token ${token} was safely cancelled.`
-          : `No active pending operation found with token ${token}.`,
+        message: replyText,
         status: cancelled ? 'CANCELLED' : 'NOT_FOUND',
         token,
         timestamp: new Date().toISOString()
@@ -240,9 +274,27 @@ async function processChat(req, res) {
       const token = confirmMatch[1].toUpperCase();
       try {
         const executionResult = await executeConfirmedAction(token, shopId, user.id);
+        await updateConfirmationStatus(token, 'CONFIRMED');
+
+        const replyText = `[Action Confirmed & Executed] ✅ ${executionResult.result}`;
+        const latencyMs = Date.now() - startTime;
+        await logAiAction({
+          shopId,
+          userId: user.id,
+          sessionId: session_id,
+          userPrompt: trimmedMessage,
+          modelResponse: replyText,
+          toolResults: [executionResult],
+          requiresConfirmation: 0,
+          confirmationToken: token,
+          confirmationStatus: 'CONFIRMED',
+          tokensUsed: Math.ceil((trimmedMessage.length + replyText.length) / 4),
+          latencyMs
+        });
+
         return res.json({
           success: true,
-          message: `[Action Confirmed & Executed] ✅ ${executionResult.result}`,
+          message: replyText,
           status: 'EXECUTED',
           action_executed: executionResult,
           tools_executed: [],
@@ -301,6 +353,7 @@ async function processChat(req, res) {
     let aiReply = '';
     const toolsExecuted = [];
     let activeConfirmation = null;
+    let tokensEstimate = Math.ceil((trimmedMessage.length + 100) / 4);
 
     try {
       // 1. Initial call with tools declarations enabled
@@ -351,6 +404,7 @@ async function processChat(req, res) {
           });
 
           aiReply = synthResponse.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          tokensEstimate = (response?.usageMetadata?.totalTokenCount || 0) + (synthResponse?.usageMetadata?.totalTokenCount || 0);
         } catch (synthErr) {
           console.warn('[Tool Synthesis Warning]:', synthErr.message);
           aiReply = toolResult?.requires_confirmation
@@ -359,6 +413,7 @@ async function processChat(req, res) {
         }
       } else {
         aiReply = firstCandidate?.content?.parts?.[0]?.text || 'No response returned by AI agent.';
+        tokensEstimate = response?.usageMetadata?.totalTokenCount || tokensEstimate;
       }
     } catch (apiError) {
       console.warn('[Agent Tool Calling Fallback]:', apiError.message);
@@ -385,11 +440,34 @@ You can continue managing your store directly through:
       }
     }
 
+    const latencyMs = Date.now() - startTime;
+    if (!tokensEstimate || tokensEstimate === 0) {
+      tokensEstimate = Math.ceil((trimmedMessage.length + aiReply.length) / 4);
+    }
+
+    // Persist AI Action Log to database (Task T-1.4)
+    const logResult = await logAiAction({
+      shopId,
+      userId: user.id,
+      sessionId: session_id,
+      userPrompt: trimmedMessage,
+      modelResponse: aiReply,
+      toolsCalled: toolsExecuted.length > 0 ? toolsExecuted.map(t => ({ name: t.name, args: t.args })) : null,
+      toolResults: toolsExecuted.length > 0 ? toolsExecuted.map(t => t.result) : null,
+      requiresConfirmation: activeConfirmation ? 1 : 0,
+      confirmationToken: activeConfirmation ? activeConfirmation.token : null,
+      confirmationStatus: activeConfirmation ? 'PENDING' : 'NONE',
+      tokensUsed: tokensEstimate,
+      latencyMs
+    });
+
     const responsePayload = {
       success: true,
       message: aiReply,
       tools_executed: toolsExecuted,
       model: GEMINI_MODEL,
+      latency_ms: latencyMs,
+      log_id: logResult ? logResult.id : null,
       timestamp: new Date().toISOString()
     };
 
@@ -437,6 +515,7 @@ async function confirmAction(req, res) {
           error: 'Invalid, already handled, or expired confirmation token.'
         });
       }
+      await updateConfirmationStatus(cleanToken, 'CANCELLED');
       return res.json({
         success: true,
         message: `Action with token ${cleanToken} was safely cancelled.`,
@@ -447,6 +526,8 @@ async function confirmAction(req, res) {
 
     // Execute confirmed action inside atomic transaction
     const result = await executeConfirmedAction(cleanToken, shopId, userId);
+    await updateConfirmationStatus(cleanToken, 'CONFIRMED');
+
     return res.json({
       success: true,
       message: 'Sensitive action successfully confirmed and executed.',
@@ -521,12 +602,97 @@ async function getConfirmation(req, res) {
   }
 }
 
+/**
+ * GET /api/agent/logs
+ * Retrieve paginated AI action audit logs (Task T-1.4)
+ */
+async function getAgentLogs(req, res) {
+  try {
+    const shopId = req.user.shop_id;
+    const { limit, offset, status, userId, requiresConfirmation } = req.query;
+
+    const logsData = await getAuditLogs(shopId, {
+      limit,
+      offset,
+      status,
+      userId,
+      requiresConfirmationOnly: requiresConfirmation
+    });
+
+    res.json({
+      success: true,
+      ...logsData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve AI audit logs.',
+      details: error.message
+    });
+  }
+}
+
+/**
+ * GET /api/agent/logs/:id
+ * Retrieve single AI action audit log entry
+ */
+async function getAgentLogDetails(req, res) {
+  try {
+    const shopId = req.user.shop_id;
+    const logId = parseInt(req.params.id, 10);
+
+    const log = await getAuditLogById(logId, shopId);
+    if (!log) {
+      return res.status(404).json({
+        success: false,
+        error: 'AI audit log not found.'
+      });
+    }
+
+    res.json({
+      success: true,
+      log
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to inspect AI audit log.',
+      details: error.message
+    });
+  }
+}
+
+/**
+ * GET /api/agent/analytics
+ * Retrieve high-level summary KPIs of AI assistant activity
+ */
+async function getAgentAnalytics(req, res) {
+  try {
+    const shopId = req.user.shop_id;
+    const summary = await getAuditSummary(shopId);
+
+    res.json({
+      success: true,
+      summary
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate AI analytics summary.',
+      details: error.message
+    });
+  }
+}
+
 module.exports = {
   getAgentStatus,
   processChat,
   confirmAction,
   listConfirmations,
   getConfirmation,
+  getAgentLogs,
+  getAgentLogDetails,
+  getAgentAnalytics,
   buildSystemInstruction,
   resolveOfflineIntent
 };
