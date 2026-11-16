@@ -240,6 +240,11 @@ function validateSalesCsv(csvText) {
     const unitPriceRaw = row[headerIndices['unit_price']];
     const paymentMethod = headerIndices['payment_method'] !== undefined ? (row[headerIndices['payment_method']] || 'cash').trim().toLowerCase() : 'cash';
     const customerName = headerIndices['customer_name'] !== undefined ? (row[headerIndices['customer_name']] || 'Walk-in Customer').trim() : 'Walk-in Customer';
+    const invoiceNumber = headerIndices['invoice_number'] !== undefined 
+      ? (row[headerIndices['invoice_number']] || '').trim() 
+      : (headerIndices['invoice_no'] !== undefined ? (row[headerIndices['invoice_no']] || '').trim() : '');
+    const discountRaw = headerIndices['discount'] !== undefined ? row[headerIndices['discount']] : 0;
+    const discount = parseFloat(discountRaw) || 0;
 
     // 1. Date validation
     const parsedDate = new Date(dateStr);
@@ -280,7 +285,9 @@ function validateSalesCsv(csvText) {
         unit_price: Number(unitPrice.toFixed(2)),
         total_price: Number((quantity * unitPrice).toFixed(2)),
         payment_method: sanitizedPayment,
-        customer_name: customerName || 'Walk-in Customer'
+        customer_name: customerName || 'Walk-in Customer',
+        invoice_number: invoiceNumber || null,
+        discount: discount >= 0 ? Number(discount.toFixed(2)) : 0
       });
     }
   }

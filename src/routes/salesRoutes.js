@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const salesController = require('../controllers/salesController');
+const importController = require('../controllers/importController');
 const { authenticateToken } = require('../middleware/auth');
 
 // All sales routes require authentication
@@ -8,6 +9,7 @@ router.use(authenticateToken);
 
 // Sales endpoints
 router.post('/', salesController.createSale);
+router.post('/bulk-import', importController.bulkImportSales);
 router.get('/', salesController.getSalesHistory);
 router.get('/:id', salesController.getSaleById);
 

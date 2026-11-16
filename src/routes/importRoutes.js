@@ -11,7 +11,8 @@ router.get('/template/sales', importController.downloadSalesTemplate);
 router.post('/preview-products', authenticateToken, importController.previewProductCsv);
 router.post('/preview-sales', authenticateToken, importController.previewSalesCsv);
 
-// Transactional Bulk Import endpoint (Task T-2.2)
+// Transactional Bulk Import endpoints (Tasks T-2.2 & T-2.3)
 router.post('/products', authenticateToken, importController.bulkImportProducts);
+router.post('/sales', authenticateToken, importController.bulkImportSales);
 
 module.exports = router;
