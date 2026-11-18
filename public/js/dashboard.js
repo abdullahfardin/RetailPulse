@@ -242,9 +242,10 @@ function renderCategoryChart(categories) {
   const labels = categories.map(c => c.category);
   const data = categories.map(c => c.total_units);
 
+  // Warm Creamy Palette
   const colors = [
-    '#2563eb', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6',
-    '#06b6d4', '#64748b', '#ef4444'
+    '#8C532B', '#D4A373', '#3D6B48', '#B87524', '#3F638A',
+    '#A26744', '#70584B', '#B5A89D'
   ];
 
   categoryChartInstance = new Chart(ctx, {
@@ -254,17 +255,30 @@ function renderCategoryChart(categories) {
       datasets: [{
         data,
         backgroundColor: colors.slice(0, labels.length),
-        borderWidth: 2,
-        borderColor: '#ffffff'
+        borderWidth: 3,
+        borderColor: '#FFFFFF',
+        hoverOffset: 4
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      cutout: '68%',
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { boxWidth: 12, font: { size: 11 } }
+          labels: {
+            boxWidth: 12,
+            font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: '500' },
+            usePointStyle: true,
+            padding: 14
+          }
+        },
+        tooltip: {
+          backgroundColor: '#2A221B',
+          bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+          padding: 10,
+          cornerRadius: 8
         }
       }
     }
@@ -294,7 +308,7 @@ async function loadTopProducts() {
         <tr>
           <td>
             <div class="d-flex align-items-center gap-2">
-              <span class="badge ${idx === 0 ? 'bg-warning text-dark' : 'bg-light text-muted border'} rounded-circle" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">
+              <span class="badge ${idx === 0 ? 'badge-mocha' : 'badge-creamy'} rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">
                 ${idx + 1}
               </span>
               <div>
@@ -303,7 +317,7 @@ async function loadTopProducts() {
               </div>
             </div>
           </td>
-          <td><span class="badge bg-light text-dark border small">${escapeHtml(p.category)}</span></td>
+          <td><span class="badge badge-creamy small">${escapeHtml(p.category)}</span></td>
           <td class="text-center fw-bold font-monospace text-primary">${p.units_sold}</td>
           <td class="text-end fw-bold font-monospace">à§³${p.total_sales_amount.toFixed(2)}</td>
         </tr>
@@ -352,7 +366,7 @@ async function loadLowStockAlerts() {
               <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace">
                 +${p.suggested_reorder_qty} ${p.unit}
               </span>
-              <div class="small text-muted" style="font-size: 0.7rem;">Est: à§³${p.estimated_reorder_cost.toFixed(0)}</div>
+              <div class="small text-muted" style="font-size: 0.7rem;">Est: Ã Â§Â³${p.estimated_reorder_cost.toFixed(0)}</div>
             </td>
           </tr>
         `;
