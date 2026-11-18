@@ -244,6 +244,70 @@ async function resolveOfflineIntent(message, shopId, userId = null) {
 }
 
 /**
+ * Format raw tool output into clean, user-friendly markdown if model synthesis is unavailable
+ */
+function formatToolResultToHumanReadable(toolName, result) {
+  if (!result) return 'Action completed with live store database.';
+
+  if (result.requires_confirmation) {
+    return `⚠️ **Explicit Confirmation Required**\n${result.summary}\n\nToken: \`${result.token}\` (Expires in ${result.expires_in_minutes || 5} minutes)`;
+  }
+
+  if (toolName === 'getLowStockProducts') {
+    if (!result.items || result.items.length === 0) {
+      return '✅ All inventory items are currently well-stocked above their minimum safety thresholds.';
+    }
+    const lines = result.items.map(it =>
+      `• **${it.name}** (${it.sku}): Current stock is **${it.current_stock}** (threshold: ${it.threshold}). Suggested reorder: **${it.suggested_reorder}** (~${it.estimated_cost})`
+    );
+    return `⚠️ **Low Stock Alert (${result.alert_count} items need attention):**\n\n${lines.join('\n')}\n\nWould you like me to help restock or record a supplier purchase?`;
+  }
+
+  if (toolName === 'getSalesSummary') {
+    return `📊 **Sales Summary (${(result.period || 'today').toUpperCase()}):**\n` +
+      `• Total Revenue: **${result.gross_revenue}**\n` +
+      `• Total Orders: **${result.total_orders}**\n` +
+      `• Cash: **${result.cash_total}** | Digital/Card: **${result.card_total}**\n` +
+      `• Average Order Value: **${result.avg_order_value}**`;
+  }
+
+  if (toolName === 'getTopSellingProducts') {
+    if (!result.top_sellers || result.top_sellers.length === 0) {
+      return 'No sales records found for this period.';
+    }
+    const lines = result.top_sellers.map(s =>
+      `#${s.rank} **${s.name}** — ${s.units_sold} units sold (${s.gross_revenue})`
+    );
+    return `🏆 **Top Selling Products (${result.period}):**\n\n${lines.join('\n')}`;
+  }
+
+  if (toolName === 'getLatestReceipt') {
+    if (!result.found) return 'No sales transactions recorded yet in the store.';
+    const items = (result.items || []).map(i => `• ${i.product} x${i.quantity} (${i.line_total})`).join('\n');
+    return `📄 **Latest Sales Invoice: ${result.invoice_number}**\n` +
+      `• Customer: **${result.customer_name}** | Cashier: **${result.cashier}**\n` +
+      `• Date: ${new Date(result.created_at).toLocaleString()}\n` +
+      `• Items:\n${items}\n` +
+      `• **Total: ${result.total_amount}** (${(result.payment_method || 'CASH').toUpperCase()})`;
+  }
+
+  if (toolName === 'searchProduct') {
+    if (!result.products || result.products.length === 0) {
+      return `No products found matching your search.`;
+    }
+    const items = result.products.map(p => `• **${p.name}** (${p.sku}) — Stock: **${p.stock}**, Price: **${p.price}**`).join('\n');
+    return `🔍 **Found ${result.found_count} matching product(s):**\n\n${items}`;
+  }
+
+  if (toolName === 'checkStock') {
+    if (!result.found) return `Product not found in store inventory.`;
+    return `📦 **${result.name}** (${result.sku})\n• Current Stock: **${result.current_stock}**\n• Price: **${result.price}**\n• Status: **${(result.status || 'in_stock').toUpperCase()}**`;
+  }
+
+  return `I ran the store tool **${toolName}** on live database records successfully.`;
+}
+
+/**
  * POST /api/agent/chat
  * Conversational endpoint for retail assistance with autonomous tool calling, safety confirmation gate & audit logging
  */
@@ -414,7 +478,7 @@ async function processChat(req, res) {
             ...contents,
             firstCandidate.content,
             {
-              role: 'function',
+              role: 'user',
               parts: [
                 {
                   functionResponse: {
@@ -431,16 +495,19 @@ async function processChat(req, res) {
           const synthResponse = await generateContent({
             contents: functionFollowupContents,
             systemInstruction,
+            tools: [{ functionDeclarations: allToolDeclarations }],
             timeoutMs: 25000
           });
 
           aiReply = synthResponse.candidates?.[0]?.content?.parts?.[0]?.text || '';
           tokensEstimate = (response?.usageMetadata?.totalTokenCount || 0) + (synthResponse?.usageMetadata?.totalTokenCount || 0);
+          
+          if (!aiReply || !aiReply.trim()) {
+            aiReply = formatToolResultToHumanReadable(name, toolResult);
+          }
         } catch (synthErr) {
-          console.warn('[Tool Synthesis Warning]:', synthErr.message);
-          aiReply = toolResult?.requires_confirmation
-            ? `⚠️ Explicit confirmation required: ${toolResult.summary}\nToken: ${toolResult.token}`
-            : `I ran the store tool **${name}** on live database records.\n\nResult:\n${JSON.stringify(toolResult, null, 2)}`;
+          console.warn('[Tool Synthesis Fallback]:', synthErr.message);
+          aiReply = formatToolResultToHumanReadable(name, toolResult);
         }
       } else {
         aiReply = firstCandidate?.content?.parts?.[0]?.text || 'No response returned by AI agent.';
