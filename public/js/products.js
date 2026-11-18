@@ -57,7 +57,7 @@ function loadUserProfile() {
   // Handle Logout
   document.getElementById('btnLogout').addEventListener('click', (e) => {
     e.preventDefault();
-    if (confirm('Are you sure you want to log out?')) {
+    if (confirm('Are you sure you want to sign out?')) {
       API.clearSession();
       window.location.href = '/login.html';
     }
@@ -80,7 +80,7 @@ function setupEventListeners() {
   let searchTimeout;
   document.getElementById('searchInput').addEventListener('input', () => {
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(loadProducts, 300);
+    searchTimeout = setTimeout(loadProducts, 250);
   });
 
   // Filter change handlers
@@ -195,7 +195,7 @@ function renderProductsTable(products) {
     tbody.innerHTML = `
       <tr>
         <td colspan="8" class="text-center py-5 text-muted">
-          <i class="bi bi-box-seam fs-2 d-block mb-2 text-secondary"></i>
+          <i class="bi bi-box-seam fs-2 d-block mb-2 text-muted"></i>
           No products found matching the criteria. Click <strong>"Add New Product"</strong> to register items.
         </td>
       </tr>
@@ -218,21 +218,25 @@ function renderProductsTable(products) {
 
     return `
       <tr>
-        <td class="font-monospace text-muted small fw-semibold">${escapeHtml(p.sku)}</td>
+        <td class="font-monospace text-muted small fw-semibold">
+          <span class="badge badge-creamy font-monospace">${escapeHtml(p.sku)}</span>
+        </td>
         <td>
           <div class="fw-semibold text-dark">${escapeHtml(p.name)}</div>
           <small class="text-muted">Min Threshold: ${p.min_stock_threshold} ${p.unit}</small>
         </td>
         <td>
-          <span class="badge bg-light text-dark border">${escapeHtml(p.category)}</span>
+          <span class="badge badge-creamy">${escapeHtml(p.category)}</span>
         </td>
         <td class="text-end font-monospace">৳${p.cost_price.toFixed(2)}</td>
         <td class="text-end font-monospace fw-bold text-dark">৳${p.selling_price.toFixed(2)}</td>
-        <td class="text-center small text-success fw-semibold">${margin}</td>
+        <td class="text-center small fw-semibold">
+          <span class="badge badge-mocha">${margin}</span>
+        </td>
         <td class="text-center">${badgeHtml}</td>
         <td class="text-center">
           <div class="btn-group btn-group-sm" role="group">
-            <button class="btn btn-outline-warning" title="Adjust Stock (Restock / Deduct)" onclick="openAdjustStockModal(${p.id})">
+            <button class="btn btn-outline-secondary" title="Adjust Stock (Restock / Deduct)" onclick="openAdjustStockModal(${p.id})">
               <i class="bi bi-boxes"></i>
             </button>
             <button class="btn btn-outline-primary" title="Edit Product Details" onclick="openEditProductModal(${p.id})">
