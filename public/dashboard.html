@@ -90,8 +90,8 @@
         <div>
           <h4 class="fw-bold mb-1">Executive Analytics & Demand Intelligence</h4>
           <p class="text-muted mb-0 small">
-            <span class="badge badge-mocha me-2">Module 3 Ã¢â‚¬Â¢ Core Feature 3</span>
-            Owner: <strong>Md Ebrahim Hossen</strong> Ã¢â‚¬Â¢ Real-time sales telemetry, Chart.js trends, and demand forecasting engine.
+            <span class="badge badge-mocha me-2">Module 3 • Core Feature 3</span>
+            Owner: <strong>Md Ebrahim Hossen</strong> • Real-time sales telemetry, Chart.js trends, and demand forecasting engine.
           </p>
         </div>
       </div>
@@ -116,7 +116,7 @@
           <div class="d-flex align-items-center justify-content-between">
             <div>
               <div class="stat-label">Today's Revenue</div>
-              <div class="stat-value text-primary font-monospace" id="kpiTodayRev">à§³0.00</div>
+              <div class="stat-value text-primary font-monospace" id="kpiTodayRev">৳0.00</div>
             </div>
             <div class="stat-icon bg-primary-subtle text-primary">
               <i class="bi bi-currency-dollar"></i>
@@ -146,13 +146,13 @@
           <div class="d-flex align-items-center justify-content-between">
             <div>
               <div class="stat-label">Retail Stock Valuation</div>
-              <div class="stat-value text-dark font-monospace" id="kpiRetailVal">à§³0.00</div>
+              <div class="stat-value text-dark font-monospace" id="kpiRetailVal">৳0.00</div>
             </div>
             <div class="stat-icon bg-info-subtle text-info">
               <i class="bi bi-cash-coin"></i>
             </div>
           </div>
-          <small class="text-muted mt-2 d-block" id="kpiProfitEst">Potential Profit: à§³0.00</small>
+          <small class="text-muted mt-2 d-block" id="kpiProfitEst">Potential Profit: ৳0.00</small>
         </div>
       </div>
 
@@ -167,7 +167,7 @@
               <i class="bi bi-exclamation-octagon"></i>
             </div>
           </div>
-          <small class="text-muted mt-2 d-block" id="kpiAlertDetail">0 low stock â€¢ 0 out of stock</small>
+          <small class="text-muted mt-2 d-block" id="kpiAlertDetail">0 low stock • 0 out of stock</small>
         </div>
       </div>
     </div>
@@ -176,15 +176,15 @@
     <div class="row g-3 mb-4">
       <!-- Sales Revenue Trend (Line Chart) -->
       <div class="col-lg-8">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+        <div class="card card-table h-100">
+          <div class="card-header-clean">
             <h6 class="fw-bold mb-0 text-dark">
               <i class="bi bi-graph-up text-primary me-2"></i> Sales Revenue & Order Velocity
             </h6>
-            <span class="badge bg-light text-muted border" id="trendChartBadge">Daily Aggregation</span>
+            <span class="badge badge-creamy" id="trendChartBadge">Daily Aggregation</span>
           </div>
           <div class="card-body p-3">
-            <div style="position: relative; height: 280px;">
+            <div style="position: relative; height: 285px;">
               <canvas id="salesTrendChart"></canvas>
             </div>
           </div>
@@ -193,15 +193,15 @@
 
       <!-- Inventory by Category (Doughnut Chart) -->
       <div class="col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+        <div class="card card-table h-100">
+          <div class="card-header-clean">
             <h6 class="fw-bold mb-0 text-dark">
               <i class="bi bi-pie-chart text-success me-2"></i> Inventory by Category
             </h6>
-            <span class="badge bg-light text-muted border">Units</span>
+            <span class="badge badge-creamy">Units</span>
           </div>
           <div class="card-body p-3 d-flex align-items-center justify-content-center">
-            <div style="position: relative; height: 260px; width: 100%;">
+            <div style="position: relative; height: 265px; width: 100%;">
               <canvas id="categoryChart"></canvas>
             </div>
           </div>
@@ -213,12 +213,12 @@
     <div class="row g-3 mb-4">
       <!-- Top Selling Products Leaderboard -->
       <div class="col-lg-6">
-        <div class="card card-table border-0 shadow-sm h-100">
-          <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="card card-table h-100">
+          <div class="card-header-clean">
             <h6 class="fw-bold mb-0 text-dark">
               <i class="bi bi-trophy text-warning me-2"></i> Top-Selling Products Leaderboard
             </h6>
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Top 5</span>
+            <span class="badge badge-mocha">Top 5</span>
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -242,12 +242,12 @@
 
       <!-- Low Stock Alerts & Reorder Quantity Suggestions (FR 16) -->
       <div class="col-lg-6">
-        <div class="card card-table border-0 shadow-sm h-100">
-          <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="card card-table h-100">
+          <div class="card-header-clean">
             <h6 class="fw-bold mb-0 text-danger">
               <i class="bi bi-bell text-danger me-2"></i> High-Priority Reorder Alerts (Planning)
             </h6>
-            <a href="/index.html" class="small text-decoration-none fw-semibold">Manage Stock &rarr;</a>
+            <a href="/index.html" class="small text-decoration-none fw-bold text-primary">Manage Stock &rarr;</a>
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -272,15 +272,15 @@
     </div>
 
     <!-- Inventory Movement Audit Ledger (FR 14) -->
-    <div class="card card-table border-0 shadow-sm mb-4">
-      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <div class="card card-table mb-4">
+      <div class="card-header-clean">
         <div>
           <h6 class="fw-bold mb-0 text-dark">
-            <i class="bi bi-clock-history text-secondary me-2"></i> Stock Movement Audit Ledger
+            <i class="bi bi-clock-history text-muted me-2"></i> Stock Movement Audit Ledger
           </h6>
           <small class="text-muted">Chronological traceability for every intake, sale, and correction</small>
         </div>
-        <span class="badge bg-light text-muted border">Latest 15 Logs</span>
+        <span class="badge badge-creamy">Latest 15 Logs</span>
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 small">

@@ -92,14 +92,14 @@ async function loadKPIs() {
     const res = await API.get('/api/dashboard/stats');
     if (res.success && res.stats) {
       const s = res.stats;
-      document.getElementById('kpiTodayRev').textContent = `à§³${(s.today_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      document.getElementById('kpiTodayRev').textContent = `৳${(s.today_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
       document.getElementById('kpiTodayOrders').textContent = `${s.today_orders || 0} completed orders today`;
       document.getElementById('kpiTotalUnits').textContent = (s.total_units || 0).toLocaleString();
       document.getElementById('kpiProductCount').textContent = `Across ${s.total_products || 0} active catalog items`;
-      document.getElementById('kpiRetailVal').textContent = `à§³${(s.retail_valuation || 0).toLocaleString()}`;
-      document.getElementById('kpiProfitEst').textContent = `Potential Profit: à§³${(s.potential_profit || 0).toLocaleString()}`;
+      document.getElementById('kpiRetailVal').textContent = `৳${(s.retail_valuation || 0).toLocaleString()}`;
+      document.getElementById('kpiProfitEst').textContent = `Potential Profit: ৳${(s.potential_profit || 0).toLocaleString()}`;
       document.getElementById('kpiAlertCount').textContent = s.total_alerts || 0;
-      document.getElementById('kpiAlertDetail').textContent = `${s.low_stock_count || 0} low stock â€¢ ${s.out_of_stock_count || 0} out of stock`;
+      document.getElementById('kpiAlertDetail').textContent = `${s.low_stock_count || 0} low stock • ${s.out_of_stock_count || 0} out of stock`;
     }
   } catch (err) {
     console.error('Failed to load dashboard KPIs:', err);
@@ -138,7 +138,7 @@ function renderTrendChart(labels, revenue, orders) {
       labels,
       datasets: [
         {
-          label: 'Revenue (à§³)',
+          label: 'Revenue (৳)',
           data: revenue,
           borderColor: '#8C532B',
           backgroundColor: gradient,
@@ -199,9 +199,9 @@ function renderTrendChart(labels, revenue, orders) {
           display: true,
           position: 'left',
           grid: { color: '#F3EDE4' },
-          title: { display: true, text: 'Revenue (à§³)', color: '#82756A', font: { weight: '600', size: 11 } },
+          title: { display: true, text: 'Revenue (৳)', color: '#82756A', font: { weight: '600', size: 11 } },
           ticks: {
-            callback: value => 'à§³' + value,
+            callback: value => '৳' + value,
             font: { family: "'JetBrains Mono', monospace", size: 11 },
             color: '#82756A'
           }
@@ -319,7 +319,7 @@ async function loadTopProducts() {
           </td>
           <td><span class="badge badge-creamy small">${escapeHtml(p.category)}</span></td>
           <td class="text-center fw-bold font-monospace text-primary">${p.units_sold}</td>
-          <td class="text-end fw-bold font-monospace">à§³${p.total_sales_amount.toFixed(2)}</td>
+          <td class="text-end fw-bold font-monospace">৳${p.total_sales_amount.toFixed(2)}</td>
         </tr>
       `).join('');
     }
@@ -350,8 +350,8 @@ async function loadLowStockAlerts() {
       tbody.innerHTML = alerts.map(p => {
         const isCritical = p.stock_quantity <= 0;
         const badge = isCritical
-          ? `<span class="badge bg-danger">OUT OF STOCK (0)</span>`
-          : `<span class="badge bg-warning text-dark">${p.stock_quantity} ${p.unit}</span>`;
+          ? `<span class="badge badge-stock badge-out-of-stock">OUT OF STOCK (0)</span>`
+          : `<span class="badge badge-stock badge-low-stock">${p.stock_quantity} ${p.unit}</span>`;
 
         return `
           <tr>
@@ -363,10 +363,10 @@ async function loadLowStockAlerts() {
             <td class="text-center small text-muted font-monospace">${p.min_stock_threshold} ${p.unit}</td>
             <td class="text-center font-monospace text-danger fw-bold">-${p.deficit}</td>
             <td class="text-end">
-              <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace">
+              <span class="badge badge-mocha font-monospace">
                 +${p.suggested_reorder_qty} ${p.unit}
               </span>
-              <div class="small text-muted" style="font-size: 0.7rem;">Est: Ã Â§Â³${p.estimated_reorder_cost.toFixed(0)}</div>
+              <div class="small text-muted" style="font-size: 0.72rem;">Est: ৳${p.estimated_reorder_cost.toFixed(0)}</div>
             </td>
           </tr>
         `;
@@ -397,11 +397,11 @@ async function loadAuditLogs() {
       tbody.innerHTML = logs.map(l => {
         let actionBadge = '';
         if (l.change_type === 'SALE') {
-          actionBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle">SALE</span>';
+          actionBadge = '<span class="badge badge-stock badge-out-of-stock">SALE</span>';
         } else if (l.change_type === 'RESTOCK' || l.change_type === 'INITIAL') {
-          actionBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle">RESTOCK</span>';
+          actionBadge = '<span class="badge badge-stock badge-in-stock">RESTOCK</span>';
         } else {
-          actionBadge = '<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">ADJUST</span>';
+          actionBadge = '<span class="badge badge-stock badge-low-stock">ADJUST</span>';
         }
 
         const qtyDisplay = l.quantity_change > 0 ? `+${l.quantity_change}` : `${l.quantity_change}`;
@@ -409,7 +409,7 @@ async function loadAuditLogs() {
 
         return `
           <tr>
-            <td class="text-muted">${new Date(l.created_at).toLocaleString()}</td>
+            <td class="text-muted font-monospace small">${new Date(l.created_at).toLocaleString()}</td>
             <td>
               <div class="fw-semibold text-dark">${escapeHtml(l.product_name)}</div>
               <small class="text-muted font-monospace">${escapeHtml(l.product_sku)}</small>
