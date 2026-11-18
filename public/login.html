@@ -11,20 +11,47 @@
 <body>
   <div class="auth-container">
     <div class="auth-card">
+      <!-- Animated Lofi Illustration -->
+      <div class="lofi-illustration text-center mb-2">
+        <svg width="84" height="84" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="lofi-float-anim">
+          <!-- Cozy Lofi Coffee Cup & Saucer -->
+          <ellipse cx="50" cy="78" rx="30" ry="6" fill="#EFE4D8"/>
+          <path d="M30 46 C30 74 70 74 70 46 Z" fill="#FFFFFF" stroke="#8C532B" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M70 51 C78 51 83 56 83 62 C83 68 77 72 69 70" stroke="#8C532B" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="46" x2="74" y2="46" stroke="#8C532B" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M35 52 Q50 56 65 52" stroke="#E6CCB2" stroke-width="2" stroke-linecap="round"/>
+          <!-- Animated Rising Steam -->
+          <path d="M42 38 C40 31 46 27 43 19" stroke="#D4A373" stroke-width="2.5" stroke-linecap="round">
+            <animate attributeName="d" values="M42 38 C40 31 46 27 43 19; M42 36 C45 29 39 24 43 16; M42 38 C40 31 46 27 43 19" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.3;0.9;0.3" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M52 38 C54 30 48 25 51 17" stroke="#D4A373" stroke-width="2.5" stroke-linecap="round">
+            <animate attributeName="d" values="M52 38 C54 30 48 25 51 17; M52 36 C50 27 55 23 51 15; M52 38 C54 30 48 25 51 17" dur="3.6s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="3.6s" repeatCount="indefinite"/>
+          </path>
+          <path d="M60 38 C58 31 64 27 61 20" stroke="#D4A373" stroke-width="2.5" stroke-linecap="round">
+            <animate attributeName="d" values="M60 38 C58 31 64 27 61 20; M60 36 C63 29 57 25 61 18; M60 38 C58 31 64 27 61 20" dur="2.9s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2.9s" repeatCount="indefinite"/>
+          </path>
+          <!-- Sparkles -->
+          <polygon points="22,25 24,20 29,22 24,24 22,29 20,24 15,22 20,20" fill="#D4A373" class="lofi-sparkle-1"/>
+          <polygon points="78,24 80,20 84,22 80,24 78,28 76,24 72,22 76,20" fill="#8C532B" class="lofi-sparkle-2"/>
+        </svg>
+      </div>
+
       <div class="text-center mb-4">
-        <div class="brand-icon mx-auto mb-2">RP</div>
         <h3 class="fw-bold mb-1">RetailPulse</h3>
-        <p class="text-muted small">Retail Sales, Demand Forecasting & Inventory Planning</p>
+        <p class="text-muted small mb-0">Minimal Retail Billing, Demand Forecasting & Inventory Intelligence</p>
       </div>
 
       <!-- Quick Demo Access Banner -->
-      <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center justify-content-between">
+      <div class="alert alert-warning py-2 px-3 mb-3 d-flex align-items-center justify-content-between border-0 shadow-sm" style="background-color: var(--rp-surface-subtle); border-left: 3px solid var(--rp-primary) !important;">
         <div>
-          <small class="d-block fw-semibold text-primary"><i class="bi bi-shield-check me-1"></i> Live Assessment Demo</small>
-          <small class="text-muted">owner@retailpulse.com</small>
+          <small class="d-block fw-bold text-dark"><i class="bi bi-shield-check text-success me-1"></i> Live Assessment Demo</small>
+          <small class="text-muted font-monospace">owner@retailpulse.com</small>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-primary" id="btnFillDemo">
-          Quick Fill
+        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" id="btnFillDemo">
+          <i class="bi bi-lightning-charge me-1"></i> Quick Fill
         </button>
       </div>
 
@@ -53,20 +80,20 @@
             <div class="mb-3">
               <label for="loginEmail" class="form-label small fw-semibold">Email Address</label>
               <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                 <input type="email" class="form-control" id="loginEmail" placeholder="name@shop.com" required>
               </div>
             </div>
             <div class="mb-3">
               <label for="loginPassword" class="form-label small fw-semibold">Password</label>
               <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
                 <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required>
               </div>
             </div>
             <div class="d-grid mt-4">
-              <button type="submit" class="btn btn-primary py-2" id="btnLoginSubmit">
-                Sign In to Dashboard
+              <button type="submit" class="btn btn-primary py-2 shadow-sm" id="btnLoginSubmit">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Dashboard
               </button>
             </div>
           </form>
@@ -78,42 +105,44 @@
             <div class="mb-2">
               <label for="regShopName" class="form-label small fw-semibold">Shop / Business Name</label>
               <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-shop"></i></span>
+                <span class="input-group-text"><i class="bi bi-shop"></i></span>
                 <input type="text" class="form-control" id="regShopName" placeholder="e.g. Modern Grocers" required>
               </div>
             </div>
             <div class="mb-2">
               <label for="regName" class="form-label small fw-semibold">Owner Full Name</label>
               <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
                 <input type="text" class="form-control" id="regName" placeholder="e.g. Abdullah Akond" required>
               </div>
             </div>
             <div class="mb-2">
               <label for="regEmail" class="form-label small fw-semibold">Email Address</label>
               <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                 <input type="email" class="form-control" id="regEmail" placeholder="owner@store.com" required>
               </div>
             </div>
             <div class="mb-3">
               <label for="regPassword" class="form-label small fw-semibold">Password (min 6 characters)</label>
               <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
                 <input type="password" class="form-control" id="regPassword" placeholder="••••••••" minlength="6" required>
               </div>
             </div>
             <div class="d-grid mt-3">
-              <button type="submit" class="btn btn-primary py-2" id="btnRegisterSubmit">
-                Create Account & Shop
+              <button type="submit" class="btn btn-primary py-2 shadow-sm" id="btnRegisterSubmit">
+                <i class="bi bi-check2-circle me-1"></i> Create Account & Shop
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      <div class="text-center mt-4">
-        <small class="text-muted">DIU Capstone Project • Member 1: Abdullah Al Junaed Akond</small>
+      <div class="text-center mt-4 pt-2 border-top">
+        <small class="text-muted" style="font-size: 0.78rem;">
+          RetailPulse Capstone • Crafted with minimal creamy warmth
+        </small>
       </div>
     </div>
   </div>
