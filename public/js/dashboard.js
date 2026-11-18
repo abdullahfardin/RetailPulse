@@ -51,7 +51,7 @@ function loadUserProfile() {
   // Logout handler
   document.getElementById('btnLogout').addEventListener('click', (e) => {
     e.preventDefault();
-    if (confirm('Are you sure you want to log out?')) {
+    if (confirm('Are you sure you want to sign out?')) {
       API.clearSession();
       window.location.href = '/login.html';
     }
@@ -92,14 +92,14 @@ async function loadKPIs() {
     const res = await API.get('/api/dashboard/stats');
     if (res.success && res.stats) {
       const s = res.stats;
-      document.getElementById('kpiTodayRev').textContent = `৳${(s.today_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      document.getElementById('kpiTodayRev').textContent = `à§³${(s.today_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
       document.getElementById('kpiTodayOrders').textContent = `${s.today_orders || 0} completed orders today`;
       document.getElementById('kpiTotalUnits').textContent = (s.total_units || 0).toLocaleString();
       document.getElementById('kpiProductCount').textContent = `Across ${s.total_products || 0} active catalog items`;
-      document.getElementById('kpiRetailVal').textContent = `৳${(s.retail_valuation || 0).toLocaleString()}`;
-      document.getElementById('kpiProfitEst').textContent = `Potential Profit: ৳${(s.potential_profit || 0).toLocaleString()}`;
+      document.getElementById('kpiRetailVal').textContent = `à§³${(s.retail_valuation || 0).toLocaleString()}`;
+      document.getElementById('kpiProfitEst').textContent = `Potential Profit: à§³${(s.potential_profit || 0).toLocaleString()}`;
       document.getElementById('kpiAlertCount').textContent = s.total_alerts || 0;
-      document.getElementById('kpiAlertDetail').textContent = `${s.low_stock_count || 0} low stock • ${s.out_of_stock_count || 0} out of stock`;
+      document.getElementById('kpiAlertDetail').textContent = `${s.low_stock_count || 0} low stock â€¢ ${s.out_of_stock_count || 0} out of stock`;
     }
   } catch (err) {
     console.error('Failed to load dashboard KPIs:', err);
@@ -127,31 +127,42 @@ function renderTrendChart(labels, revenue, orders) {
     trendChartInstance.destroy();
   }
 
+  // Create subtle gradient for warm creamy look
+  const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+  gradient.addColorStop(0, 'rgba(140, 83, 43, 0.18)');
+  gradient.addColorStop(1, 'rgba(140, 83, 43, 0.00)');
+
   trendChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
       datasets: [
         {
-          label: 'Revenue (৳)',
+          label: 'Revenue (à§³)',
           data: revenue,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          borderColor: '#8C532B',
+          backgroundColor: gradient,
           fill: true,
-          tension: 0.35,
+          tension: 0.38,
+          borderWidth: 2.5,
           yAxisID: 'y',
           pointRadius: 4,
-          pointBackgroundColor: '#2563eb'
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#8C532B',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 2
         },
         {
           label: 'Transaction Count',
           data: orders,
-          borderColor: '#10b981',
-          backgroundColor: '#10b981',
-          borderDash: [5, 5],
-          tension: 0.2,
+          borderColor: '#3D6B48',
+          backgroundColor: '#3D6B48',
+          borderDash: [5, 4],
+          borderWidth: 2,
+          tension: 0.25,
           yAxisID: 'y1',
-          pointRadius: 3
+          pointRadius: 3,
+          pointHoverRadius: 5
         }
       ]
     },
@@ -162,14 +173,37 @@ function renderTrendChart(labels, revenue, orders) {
         mode: 'index',
         intersect: false
       },
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600', size: 12 },
+            boxWidth: 14,
+            usePointStyle: true
+          }
+        },
+        tooltip: {
+          backgroundColor: '#2A221B',
+          titleFont: { family: "'Plus Jakarta Sans', sans-serif", size: 12 },
+          bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+          padding: 10,
+          cornerRadius: 8
+        }
+      },
       scales: {
+        x: {
+          grid: { color: '#F3EDE4' },
+          ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 }, color: '#82756A' }
+        },
         y: {
           type: 'linear',
           display: true,
           position: 'left',
-          title: { display: true, text: 'Revenue (৳)' },
+          grid: { color: '#F3EDE4' },
+          title: { display: true, text: 'Revenue (à§³)', color: '#82756A', font: { weight: '600', size: 11 } },
           ticks: {
-            callback: value => '৳' + value
+            callback: value => 'à§³' + value,
+            font: { family: "'JetBrains Mono', monospace", size: 11 },
+            color: '#82756A'
           }
         },
         y1: {
@@ -177,8 +211,8 @@ function renderTrendChart(labels, revenue, orders) {
           display: true,
           position: 'right',
           grid: { drawOnChartArea: false },
-          title: { display: true, text: 'Orders' },
-          ticks: { stepSize: 1 }
+          title: { display: true, text: 'Orders', color: '#82756A', font: { weight: '600', size: 11 } },
+          ticks: { stepSize: 1, font: { family: "'JetBrains Mono', monospace", size: 11 }, color: '#82756A' }
         }
       }
     }
@@ -271,7 +305,7 @@ async function loadTopProducts() {
           </td>
           <td><span class="badge bg-light text-dark border small">${escapeHtml(p.category)}</span></td>
           <td class="text-center fw-bold font-monospace text-primary">${p.units_sold}</td>
-          <td class="text-end fw-bold font-monospace">৳${p.total_sales_amount.toFixed(2)}</td>
+          <td class="text-end fw-bold font-monospace">à§³${p.total_sales_amount.toFixed(2)}</td>
         </tr>
       `).join('');
     }
@@ -318,7 +352,7 @@ async function loadLowStockAlerts() {
               <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace">
                 +${p.suggested_reorder_qty} ${p.unit}
               </span>
-              <div class="small text-muted" style="font-size: 0.7rem;">Est: ৳${p.estimated_reorder_cost.toFixed(0)}</div>
+              <div class="small text-muted" style="font-size: 0.7rem;">Est: à§³${p.estimated_reorder_cost.toFixed(0)}</div>
             </td>
           </tr>
         `;
