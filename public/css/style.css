@@ -614,3 +614,271 @@ h1, h2, h3, h4, h5, h6 {
 .font-monospace {
   font-family: 'JetBrains Mono', monospace !important;
 }
+
+/* ==========================================================================
+   FLOATING CONVERSATIONAL AI CHAT WIDGET & VOICE INTERFACE (T-1.5 & T-1.6)
+   Crafted by Md Ebrahim Hossen for RetailPulse Studio
+   ========================================================================== */
+
+/* Floating Launcher Button */
+.rp-chat-launcher {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #8C532B 0%, #D4A373 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--rp-radius-pill);
+  padding: 0.75rem 1.35rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 24px rgba(140, 83, 43, 0.35);
+  cursor: pointer;
+  transition: var(--rp-transition);
+}
+
+.rp-chat-launcher:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(140, 83, 43, 0.45);
+  color: #FFFFFF;
+}
+
+.rp-chat-launcher .launcher-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 1rem;
+}
+
+/* Chat Widget Container */
+.rp-chat-widget {
+  position: fixed;
+  bottom: 85px;
+  right: 24px;
+  width: 410px;
+  max-width: calc(100vw - 32px);
+  height: 580px;
+  max-height: calc(100vh - 110px);
+  background: var(--rp-surface);
+  border: 1px solid var(--rp-border);
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(90, 60, 35, 0.16);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
+}
+
+.rp-chat-widget.collapsed {
+  opacity: 0;
+  transform: scale(0.9) translateY(20px);
+  pointer-events: none;
+}
+
+/* Chat Header */
+.rp-chat-header {
+  background: linear-gradient(135deg, #FAF7F2 0%, #F5ECE3 100%);
+  border-bottom: 1px solid var(--rp-border);
+  padding: 0.9rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rp-chat-header .agent-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--rp-success);
+  display: inline-block;
+  box-shadow: 0 0 0 3px rgba(61, 107, 72, 0.2);
+}
+
+/* Chat Messages Thread */
+.rp-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background-color: #FAF8F5;
+}
+
+/* Message Bubbles */
+.rp-chat-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 86%;
+  animation: lofi-float-in 0.22s ease-out;
+}
+
+@keyframes lofi-float-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rp-chat-msg.user {
+  align-self: flex-end;
+}
+
+.rp-chat-msg.user .msg-bubble {
+  background: linear-gradient(135deg, #8C532B 0%, #A26744 100%);
+  color: #FFFFFF;
+  border-radius: 16px 16px 4px 16px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(140, 83, 43, 0.2);
+}
+
+.rp-chat-msg.agent {
+  align-self: flex-start;
+}
+
+.rp-chat-msg.agent .msg-bubble {
+  background: #FFFFFF;
+  color: var(--rp-text-dark);
+  border: 1px solid var(--rp-border);
+  border-radius: 16px 16px 16px 4px;
+  padding: 0.85rem 1.05rem;
+  font-size: 0.9rem;
+  box-shadow: var(--rp-shadow-sm);
+  line-height: 1.5;
+}
+
+/* Tool execution callout tag */
+.rp-tool-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--rp-surface-subtle);
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-pill);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  color: var(--rp-primary);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+/* Two-Phase Confirmation Card inside Chat */
+.rp-confirm-card {
+  background: #FFFDF9;
+  border: 1.5px dashed var(--rp-primary);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.rp-confirm-card .confirm-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  background: var(--rp-primary-light);
+  color: var(--rp-primary);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Quick Suggestion Chips */
+.rp-quick-chips {
+  padding: 0.5rem 0.85rem;
+  background: #FFFFFF;
+  border-top: 1px solid var(--rp-border-light);
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.rp-chip-btn {
+  background: var(--rp-surface-subtle);
+  border: 1px solid var(--rp-border);
+  border-radius: var(--rp-radius-pill);
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--rp-text-muted);
+  cursor: pointer;
+  transition: var(--rp-transition);
+  border: 1px solid var(--rp-border);
+}
+
+.rp-chip-btn:hover {
+  background: var(--rp-primary-light);
+  border-color: var(--rp-primary-subtle);
+  color: var(--rp-primary);
+}
+
+/* Chat Input Area */
+.rp-chat-input-area {
+  padding: 0.75rem 1rem;
+  background: #FFFFFF;
+  border-top: 1px solid var(--rp-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+/* Voice Input Button & Wave Pulse (T-1.6) */
+.rp-btn-voice {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--rp-border);
+  background: var(--rp-surface-subtle);
+  color: var(--rp-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--rp-transition);
+  flex-shrink: 0;
+}
+
+.rp-btn-voice:hover {
+  background: var(--rp-primary-light);
+  color: var(--rp-primary);
+  border-color: var(--rp-accent-caramel);
+}
+
+.rp-btn-voice.listening {
+  background: var(--rp-danger);
+  color: #FFFFFF;
+  border-color: var(--rp-danger);
+  animation: pulse-recording 1.2s infinite;
+}
+
+@keyframes pulse-recording {
+  0% { box-shadow: 0 0 0 0 rgba(179, 57, 57, 0.45); }
+  70% { box-shadow: 0 0 0 10px rgba(179, 57, 57, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(179, 57, 57, 0); }
+}
+
+.rp-voice-toast {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2A221B;
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--rp-radius-pill);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  pointer-events: none;
+  animation: lofi-float-in 0.2s ease-out;
+  white-space: nowrap;
+  z-index: 1060;
+}
