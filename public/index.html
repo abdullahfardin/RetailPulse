@@ -16,11 +16,11 @@
         <div class="brand-icon">RP</div>
         <div>
           <span class="fw-bold fs-5 text-dark">RetailPulse</span>
-          <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size: 0.68rem;">v1.0 Capstone</span>
+          <span class="badge badge-mocha ms-1" style="font-size: 0.68rem;">v1.0 Capstone</span>
         </div>
       </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -32,12 +32,12 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-muted" href="/sales.html">
+            <a class="nav-link" href="/sales.html">
               <i class="bi bi-cart3 me-1"></i> Sales & POS
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-muted" href="/dashboard.html">
+            <a class="nav-link" href="/dashboard.html">
               <i class="bi bi-graph-up-arrow me-1"></i> Dashboard & Analytics
             </a>
           </li>
@@ -45,7 +45,7 @@
 
         <div class="d-flex align-items-center gap-3">
           <!-- Shop Badge -->
-          <div class="px-3 py-1 bg-light rounded-pill border d-flex align-items-center gap-2">
+          <div class="shop-pill">
             <i class="bi bi-shop text-primary"></i>
             <span class="small fw-semibold text-dark" id="navShopName">Loading Shop...</span>
           </div>
@@ -53,11 +53,11 @@
           <!-- User Profile & Logout -->
           <div class="dropdown">
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown">
-              <i class="bi bi-person-circle text-secondary"></i>
+              <i class="bi bi-person-circle text-muted"></i>
               <span id="navUserName">Loading User...</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-              <li><h6 class="dropdown-header">Module Owner: Abdullah Al Junaed</h6></li>
+              <li><h6 class="dropdown-header">RetailPulse Team Workspace</h6></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item text-danger" href="#" id="btnLogout"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
             </ul>
@@ -69,17 +69,39 @@
 
   <!-- Main Container -->
   <main class="container-fluid px-4 py-4">
-    <!-- Breadcrumb & Title Section -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
-      <div>
-        <h3 class="fw-bold mb-1">Product & Inventory Catalog</h3>
-        <p class="text-muted mb-0 small">
-          <span class="badge bg-secondary-subtle text-secondary me-2">Module 1 (Compulsory & Feature 1)</span>
-          Owner: <strong>Abdullah Al Junaed Akond</strong> • Real-time database inventory tracking, stock adjustments, and product CRUD.
-        </p>
+    <!-- Cozy Lofi Inventory Banner -->
+    <div class="lofi-hero-banner d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="lofi-float-anim d-none d-sm-block">
+          <svg width="58" height="58" viewBox="0 0 60 60" fill="none">
+            <!-- Cozy Inventory Shelf & Floating Parcel -->
+            <line x1="8" y1="46" x2="52" y2="46" stroke="#8C532B" stroke-width="3" stroke-linecap="round"/>
+            <line x1="12" y1="46" x2="12" y2="52" stroke="#8C532B" stroke-width="2.5"/>
+            <line x1="48" y1="46" x2="48" y2="52" stroke="#8C532B" stroke-width="2.5"/>
+            <!-- Box 1 -->
+            <rect x="14" y="24" width="18" height="20" rx="3" fill="#FFFFFF" stroke="#8C532B" stroke-width="2.2"/>
+            <line x1="14" y1="32" x2="32" y2="32" stroke="#ECE4DA" stroke-width="2"/>
+            <!-- Floating Parcel -->
+            <g>
+              <rect x="34" y="16" width="18" height="18" rx="4" fill="#FFFFFF" stroke="#8C532B" stroke-width="2.2"/>
+              <line x1="43" y1="16" x2="43" y2="34" stroke="#D4A373" stroke-width="2"/>
+              <line x1="34" y1="25" x2="52" y2="25" stroke="#D4A373" stroke-width="2"/>
+            </g>
+            <!-- Sparkles -->
+            <polygon points="48,8 49,5 52,6 49,7 48,10 47,7 44,6 47,5" fill="#D4A373" class="lofi-sparkle-1"/>
+            <polygon points="12,14 13,11 16,12 13,13 12,16 11,13 8,12 11,11" fill="#8C532B" class="lofi-sparkle-2"/>
+          </svg>
+        </div>
+        <div>
+          <h4 class="fw-bold mb-1">Product & Inventory Management</h4>
+          <p class="text-muted mb-0 small">
+            <span class="badge badge-mocha me-2">Module 1 â€¢ Core Feature 1</span>
+            Real-time catalog control, dynamic margin calculations, and granular stock adjustments.
+          </p>
+        </div>
       </div>
       <div>
-        <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" id="btnOpenAddModal">
+        <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm" id="btnOpenAddModal">
           <i class="bi bi-plus-circle"></i> Add New Product
         </button>
       </div>
@@ -122,7 +144,7 @@
           <div class="d-flex align-items-center justify-content-between">
             <div>
               <div class="stat-label">Inventory Cost Value</div>
-              <div class="stat-value" id="statCostValue">৳0</div>
+              <div class="stat-value" id="statCostValue">à§³0</div>
             </div>
             <div class="stat-icon bg-info-subtle text-info">
               <i class="bi bi-cash-stack"></i>
@@ -167,7 +189,7 @@
             <select class="form-select" id="statusFilter">
               <option value="">All Stock Statuses</option>
               <option value="IN_STOCK">In Stock (> min)</option>
-              <option value="LOW_STOCK">Low Stock (≤ min threshold)</option>
+              <option value="LOW_STOCK">Low Stock (â‰¤ min threshold)</option>
               <option value="OUT_OF_STOCK">Out of Stock (0 units)</option>
             </select>
           </div>
@@ -189,8 +211,8 @@
               <th scope="col" style="width: 120px;">SKU</th>
               <th scope="col">Product Name</th>
               <th scope="col">Category</th>
-              <th scope="col" class="text-end">Cost (৳)</th>
-              <th scope="col" class="text-end">Price (৳)</th>
+              <th scope="col" class="text-end">Cost (à§³)</th>
+              <th scope="col" class="text-end">Price (à§³)</th>
               <th scope="col" class="text-center">Margin</th>
               <th scope="col" class="text-center">Stock Level</th>
               <th scope="col" class="text-center" style="width: 160px;">Actions</th>
@@ -246,17 +268,17 @@
               </div>
 
               <div class="col-md-6">
-                <label for="prodCostPrice" class="form-label small fw-semibold">Cost Price (৳) <span class="text-danger">*</span></label>
+                <label for="prodCostPrice" class="form-label small fw-semibold">Cost Price (à§³) <span class="text-danger">*</span></label>
                 <div class="input-group">
-                  <span class="input-group-text">৳</span>
+                  <span class="input-group-text">à§³</span>
                   <input type="number" step="0.01" min="0" class="form-control" id="prodCostPrice" placeholder="0.00" required>
                 </div>
                 <small class="text-muted">Wholesale purchase cost</small>
               </div>
               <div class="col-md-6">
-                <label for="prodSellingPrice" class="form-label small fw-semibold">Selling Price (৳) <span class="text-danger">*</span></label>
+                <label for="prodSellingPrice" class="form-label small fw-semibold">Selling Price (à§³) <span class="text-danger">*</span></label>
                 <div class="input-group">
-                  <span class="input-group-text">৳</span>
+                  <span class="input-group-text">à§³</span>
                   <input type="number" step="0.01" min="0" class="form-control" id="prodSellingPrice" placeholder="0.00" required>
                 </div>
                 <small class="text-muted">Retail selling price</small>
