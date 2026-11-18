@@ -229,6 +229,17 @@ async function resolveOfflineIntent(message, shopId, userId = null) {
     };
   }
 
+  // 8. Conversational greeting & help fallback intent
+  const trimmed = message.trim().toLowerCase();
+  if (/^(hi|hello|hey|assalamu\s?alaikum|salam|hola|হাই|হ্যালো|সালাম|কেমন|হেল্প|help)/i.test(trimmed)) {
+    return {
+      toolName: 'offlineGreeting',
+      toolArgs: {},
+      result: { status: 'ready' },
+      text: `👋 **Hello! Welcome to RetailPulse AI.**\nI can help you check live inventory, query stock deficits, aggregate sales totals, and execute safe store operations.\n\nQuick questions you can ask me:\n- 📊 *"Today's sales summary"*\n- ⚠️ *"Check low stock products"*\n- 📄 *"Show last receipt"*\n- 🏆 *"What are the top 3 selling products?"*`
+    };
+  }
+
   return null;
 }
 
