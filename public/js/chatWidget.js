@@ -76,6 +76,7 @@
         <div class="rp-quick-chips">
           <button class="rp-chip-btn" data-query="Check current low stock items">⚠️ Low Stock</button>
           <button class="rp-chip-btn" data-query="Give me today's sales summary">📊 Today's Sales</button>
+          <button class="rp-chip-btn" data-query="Show me the last sales receipt">📄 Last Receipt</button>
           <button class="rp-chip-btn" data-query="Search for beverages in stock">🥤 Beverages</button>
           <button class="rp-chip-btn" data-query="What are the top 3 selling products?">🏆 Top Sellers</button>
         </div>
@@ -251,6 +252,7 @@
   }
 
   function speakReply(text) {
+    if (!text || typeof text !== 'string') return;
     if (isVoiceMuted || !('speechSynthesis' in window)) return;
 
     // Clean markdown and HTML for natural speech synthesis
@@ -259,6 +261,8 @@
       .replace(/[*_#`~]/g, '')
       .replace(/৳/g, ' Taka ')
       .trim();
+
+    if (!cleanSpeech) return;
 
     window.speechSynthesis.cancel(); // Cancel any ongoing vocalization
     const utterance = new SpeechSynthesisUtterance(cleanSpeech);
@@ -301,24 +305,31 @@
 
       removeTypingIndicator(typingId);
 
-      if (res.success) {
-        appendMessage('agent', res.reply, {
-          toolsUsed: res.tools_used || [],
-          pendingConfirmation: res.pending_confirmation || null
+      if (res && res.success) {
+        const replyText = res.message || res.reply || 'No response returned by AI agent.';
+        const toolsUsed = res.tools_executed || res.tools_used || [];
+        const pendingConfirmation = res.confirmation || res.pending_confirmation || null;
+
+        appendMessage('agent', replyText, {
+          toolsUsed,
+          pendingConfirmation
         });
 
         if (Array.isArray(res.conversation_history)) {
           conversationHistory = res.conversation_history;
+        } else if (Array.isArray(res.history)) {
+          conversationHistory = res.history;
         }
 
         // Vocalize agent response via Text-to-Speech
-        speakReply(res.reply);
+        speakReply(replyText);
       } else {
-        appendMessage('agent', `⚠️ ${res.error || 'Failed to process request.'}`);
+        const errText = (res && (res.error || res.message)) ? (res.error || res.message) : 'Failed to process request.';
+        appendMessage('agent', `⚠️ ${errText}`);
       }
     } catch (err) {
       removeTypingIndicator(typingId);
-      appendMessage('agent', `⚠️ Error connecting to AI Agent: ${err.message}`);
+      appendMessage('agent', `⚠️ Error connecting to AI Agent: ${err.message || 'Network error'}`);
     } finally {
       isSending = false;
       btnSend.disabled = false;
@@ -332,11 +343,14 @@
 
     let toolBadgeHtml = '';
     if (meta.toolsUsed && meta.toolsUsed.length > 0) {
-      toolBadgeHtml = meta.toolsUsed.map(t => `
-        <div class="rp-tool-tag">
-          <i class="bi bi-gear-fill"></i> Executed: <strong>${escapeHtml(t.tool || t)}</strong>
-        </div>
-      `).join('');
+      toolBadgeHtml = meta.toolsUsed.map(t => {
+        const name = (t && t.name) ? t.name : (t && t.tool ? t.tool : String(t));
+        return `
+          <div class="rp-tool-tag">
+            <i class="bi bi-gear-fill"></i> Executed: <strong>${escapeHtml(name)}</strong>
+          </div>
+        `;
+      }).join('');
     }
 
     let confirmationHtml = '';
@@ -361,10 +375,12 @@
       `;
     }
 
+    const safeText = (text !== null && text !== undefined) ? String(text) : '';
+
     msgDiv.innerHTML = `
       ${toolBadgeHtml}
       <div class="msg-bubble">
-        ${formatAgentText(text)}
+        ${formatAgentText(safeText)}
         ${confirmationHtml}
       </div>
     `;
@@ -406,14 +422,14 @@
 
     try {
       const res = await API.post('/api/agent/confirm', { token });
-      if (res.success) {
+      if (res && res.success) {
         if (card) {
           card.innerHTML = `<small class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Confirmed & Executed successfully!</small>`;
         }
         appendMessage('agent', `Action verified: ${res.message || 'Inventory database state updated.'}`);
       } else {
         if (card) {
-          card.innerHTML = `<small class="text-danger"><i class="bi bi-x-circle me-1"></i> Failed: ${res.error}</small>`;
+          card.innerHTML = `<small class="text-danger"><i class="bi bi-x-circle me-1"></i> Failed: ${res ? res.error : 'Unknown error'}</small>`;
         }
       }
     } catch (err) {
@@ -424,7 +440,7 @@
   };
 
   function formatAgentText(text) {
-    if (!text) return '';
+    if (!text || typeof text !== 'string') return '';
     return escapeHtml(text)
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br>');

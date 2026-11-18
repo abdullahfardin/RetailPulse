@@ -209,6 +209,26 @@ async function resolveOfflineIntent(message, shopId, userId = null) {
     };
   }
 
+  // 7. Latest sales receipt / invoice intent
+  if (lower.includes('receipt') || lower.includes('invoice') || lower.includes('recipt') || lower.includes('memo') || lower.includes('রিসিপ্ট') || lower.includes('মেমো') || lower.includes('চালান')) {
+    const res = await executeRetailTool('getLatestReceipt', {}, shopId, userId);
+    if (!res.found) {
+      return {
+        toolName: 'getLatestReceipt',
+        toolArgs: {},
+        result: res,
+        text: 'No sales receipts recorded yet in the store.'
+      };
+    }
+    const itemList = (res.items || []).map(i => `${i.product} x${i.quantity} (${i.line_total})`).join(', ');
+    return {
+      toolName: 'getLatestReceipt',
+      toolArgs: {},
+      result: res,
+      text: `📄 **Latest Sales Invoice: ${res.invoice_number}**\n- Date: ${new Date(res.created_at).toLocaleString()}\n- Customer: ${res.customer_name}\n- Items: ${itemList}\n- Total Payable: **${res.total_amount}** (${res.payment_method.toUpperCase()})`
+    };
+  }
+
   return null;
 }
 
@@ -464,7 +484,9 @@ You can continue managing your store directly through:
     const responsePayload = {
       success: true,
       message: aiReply,
+      reply: aiReply,
       tools_executed: toolsExecuted,
+      tools_used: toolsExecuted,
       model: GEMINI_MODEL,
       latency_ms: latencyMs,
       log_id: logResult ? logResult.id : null,

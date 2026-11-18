@@ -72,6 +72,14 @@ const retailToolDeclarations = [
         }
       }
     }
+  },
+  {
+    name: 'getLatestReceipt',
+    description: 'Retrieve details of the most recent sales receipt/invoice, customer name, items sold, and total amount.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {}
+    }
   }
 ];
 
@@ -275,6 +283,50 @@ const toolExecutors = {
         name: r.name,
         units_sold: `${r.units_sold} ${r.unit}`,
         gross_revenue: `৳${r.gross_revenue}`
+      }))
+    };
+  },
+
+  /**
+   * Latest Sales Receipt / Invoice
+   */
+  async getLatestReceipt(args, shopId) {
+    const sale = await db.getAsync(
+      `SELECT s.*, u.name as cashier_name
+       FROM sales s
+       LEFT JOIN users u ON s.user_id = u.id
+       WHERE s.shop_id = ?
+       ORDER BY s.created_at DESC, s.id DESC
+       LIMIT 1`,
+      [shopId]
+    );
+
+    if (!sale) {
+      return { found: false, message: 'No sales transactions recorded yet for this shop.' };
+    }
+
+    const items = await db.allAsync(
+      `SELECT product_name, quantity, unit_price, total_price
+       FROM sale_items
+       WHERE sale_id = ?`,
+      [sale.id]
+    );
+
+    return {
+      found: true,
+      invoice_number: sale.invoice_number,
+      created_at: sale.created_at,
+      customer_name: sale.customer_name || 'Walk-in Customer',
+      cashier: sale.cashier_name || 'Cashier',
+      payment_method: sale.payment_method,
+      subtotal: `৳${sale.subtotal.toFixed(2)}`,
+      discount: `৳${(sale.discount || 0).toFixed(2)}`,
+      total_amount: `৳${sale.total_amount.toFixed(2)}`,
+      items: items.map(it => ({
+        product: it.product_name,
+        quantity: it.quantity,
+        unit_price: `৳${it.unit_price.toFixed(2)}`,
+        line_total: `৳${it.total_price.toFixed(2)}`
       }))
     };
   },
