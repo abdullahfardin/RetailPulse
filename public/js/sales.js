@@ -54,10 +54,10 @@ function loadUserProfile() {
     document.getElementById('navUserName').textContent = user.name;
   }
 
-  // Logout handler
+  // Handle Logout
   document.getElementById('btnLogout').addEventListener('click', (e) => {
     e.preventDefault();
-    if (confirm('Are you sure you want to log out?')) {
+    if (confirm('Are you sure you want to sign out?')) {
       API.clearSession();
       window.location.href = '/login.html';
     }
@@ -65,39 +65,46 @@ function loadUserProfile() {
 }
 
 function setupEventListeners() {
-  // Search input with debounce
+  // Search and Category Filters
   let searchTimeout;
   document.getElementById('posSearchInput').addEventListener('input', () => {
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(renderProductGrid, 250);
+    searchTimeout = setTimeout(renderProductGrid, 200);
   });
 
-  // Category filter
   document.getElementById('posCategorySelect').addEventListener('change', renderProductGrid);
 
-  // Discount input change
-  document.getElementById('cartDiscountInput').addEventListener('input', updateCartSummary);
-
-  // Clear cart button
+  // Clear Cart Button
   document.getElementById('btnClearCart').addEventListener('click', () => {
-    if (cart.length > 0 && confirm('Are you sure you want to clear all items in current cart?')) {
+    if (cart.length === 0) return;
+    if (confirm('Are you sure you want to clear all items in the current cart?')) {
       cart = [];
       renderCart();
       showToast('Cart cleared.');
     }
   });
 
-  // Checkout button
+  // Discount input change
+  document.getElementById('cartDiscountInput').addEventListener('input', updateCartSummary);
+
+  // Checkout Button
   document.getElementById('btnCheckout').addEventListener('click', handleCheckout);
 
-  // Open Sales History modal
+  // Sales History Modal
   document.getElementById('btnOpenHistory').addEventListener('click', openSalesHistory);
+  document.getElementById('historySearchInput').addEventListener('input', filterHistoryTable);
 
-  // History search filter
-  let histSearchTimeout;
-  document.getElementById('historySearchInput').addEventListener('input', () => {
-    clearTimeout(histSearchTimeout);
-    histSearchTimeout = setTimeout(filterHistoryTable, 300);
+  // Barcode / Enter key in search to quick-add if exact match
+  document.getElementById('posSearchInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      const term = e.target.value.trim().toLowerCase();
+      const exactMatch = catalogProducts.find(p => p.sku.toLowerCase() === term || p.name.toLowerCase() === term);
+      if (exactMatch) {
+        addToCart(exactMatch.id);
+        e.target.value = '';
+        renderProductGrid();
+      }
+    }
   });
 }
 
@@ -152,7 +159,7 @@ function renderProductGrid() {
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="col-12 text-center py-5 text-muted">
-        <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
+        <i class="bi bi-search fs-2 d-block mb-2 text-muted"></i>
         No products found matching your search.
       </div>
     `;
@@ -165,11 +172,11 @@ function renderProductGrid() {
 
     let stockBadge = '';
     if (isOutOfStock) {
-      stockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle me-1"></i> Out of Stock</span>`;
+      stockBadge = `<span class="badge badge-stock badge-out-of-stock"><i class="bi bi-x-circle me-1"></i> Out of Stock</span>`;
     } else if (isLowStock) {
-      stockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-exclamation-triangle me-1"></i> Stock: ${p.stock_quantity}</span>`;
+      stockBadge = `<span class="badge badge-stock badge-low-stock"><i class="bi bi-exclamation-triangle me-1"></i> Stock: ${p.stock_quantity}</span>`;
     } else {
-      stockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i> Stock: ${p.stock_quantity}</span>`;
+      stockBadge = `<span class="badge badge-stock badge-in-stock"><i class="bi bi-check-circle me-1"></i> Stock: ${p.stock_quantity}</span>`;
     }
 
     return `
@@ -177,7 +184,7 @@ function renderProductGrid() {
         <div class="pos-product-card ${isOutOfStock ? 'disabled' : ''}" onclick="${isOutOfStock ? '' : `addToCart(${p.id})`}">
           <div>
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="badge bg-light text-muted border font-monospace small">${escapeHtml(p.sku)}</span>
+              <span class="badge badge-creamy font-monospace small">${escapeHtml(p.sku)}</span>
               ${stockBadge}
             </div>
             <h6 class="fw-bold text-dark mb-1 text-truncate" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</h6>
@@ -185,8 +192,8 @@ function renderProductGrid() {
           </div>
           <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
             <span class="fs-6 fw-bold text-primary font-monospace">৳${p.selling_price.toFixed(2)}</span>
-            <button class="btn btn-sm ${isOutOfStock ? 'btn-secondary' : 'btn-outline-primary'} rounded-pill px-2 py-0" ${isOutOfStock ? 'disabled' : ''}>
-              <i class="bi bi-plus-lg"></i> Add
+            <button class="btn btn-sm ${isOutOfStock ? 'btn-outline-secondary' : 'btn-primary'} rounded-pill px-3 py-1" ${isOutOfStock ? 'disabled' : ''}>
+              <i class="bi bi-plus-lg me-1"></i> Add
             </button>
           </div>
         </div>
@@ -259,7 +266,7 @@ function renderCart() {
   if (cart.length === 0) {
     container.innerHTML = `
       <div class="text-center py-5 text-muted">
-        <i class="bi bi-cart-x fs-1 text-secondary d-block mb-2"></i>
+        <i class="bi bi-cart-x fs-1 text-muted d-block mb-2"></i>
         Your cart is empty.<br>
         <small>Click any product on the left to add items.</small>
       </div>
@@ -295,9 +302,9 @@ function renderCart() {
         <div class="d-flex justify-content-between align-items-center mt-2">
           <small class="text-muted" style="font-size: 0.72rem;">Available: ${p.stock_quantity}</small>
           <div class="input-group input-group-sm" style="width: 105px;">
-            <button class="btn btn-outline-secondary py-0 px-2" type="button" onclick="updateCartQuantity(${p.id}, -1)">-</button>
+            <button class="btn btn-outline-secondary py-0 px-2 rounded-start-pill" type="button" onclick="updateCartQuantity(${p.id}, -1)">-</button>
             <input type="text" class="form-control text-center py-0 px-1 bg-white font-monospace" value="${item.quantity}" readonly>
-            <button class="btn btn-outline-secondary py-0 px-2" type="button" onclick="updateCartQuantity(${p.id}, 1)">+</button>
+            <button class="btn btn-outline-secondary py-0 px-2 rounded-end-pill" type="button" onclick="updateCartQuantity(${p.id}, 1)">+</button>
           </div>
         </div>
       </div>
@@ -335,7 +342,7 @@ async function handleCheckout() {
 
   const btnCheckout = document.getElementById('btnCheckout');
   btnCheckout.disabled = true;
-  btnCheckout.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing Atomic Transaction...';
+  btnCheckout.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing Transaction...';
 
   try {
     const res = await API.post('/api/sales', {
@@ -456,14 +463,14 @@ function renderHistoryTable(sales) {
       <td class="fw-semibold text-dark">${escapeHtml(s.customer_name)}</td>
       <td class="small text-muted">${escapeHtml(s.cashier_name || 'Owner')}</td>
       <td class="text-center">
-        <span class="badge bg-light text-dark border">${s.total_units_sold || s.total_items || 0} units</span>
+        <span class="badge badge-creamy">${s.total_units_sold || s.total_items || 0} units</span>
       </td>
       <td class="text-center">
-        <span class="badge bg-secondary-subtle text-secondary text-uppercase">${escapeHtml(s.payment_method)}</span>
+        <span class="badge badge-mocha text-uppercase">${escapeHtml(s.payment_method)}</span>
       </td>
       <td class="text-end font-monospace fw-bold text-dark">৳${s.total_amount.toFixed(2)}</td>
       <td class="text-center">
-        <button class="btn btn-sm btn-outline-primary" onclick="viewPastReceipt(${s.id})">
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewPastReceipt(${s.id})">
           <i class="bi bi-receipt me-1"></i> Receipt
         </button>
       </td>

@@ -16,18 +16,18 @@
         <div class="brand-icon">RP</div>
         <div>
           <span class="fw-bold fs-5 text-dark">RetailPulse</span>
-          <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size: 0.68rem;">v1.0 Capstone</span>
+          <span class="badge badge-mocha ms-1" style="font-size: 0.68rem;">v1.0 Capstone</span>
         </div>
       </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
           <li class="nav-item">
-            <a class="nav-link text-muted" href="/index.html">
+            <a class="nav-link" href="/index.html">
               <i class="bi bi-box-seam me-1"></i> Products & Stock
             </a>
           </li>
@@ -37,7 +37,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-muted" href="/dashboard.html">
+            <a class="nav-link" href="/dashboard.html">
               <i class="bi bi-graph-up-arrow me-1"></i> Dashboard & Analytics
             </a>
           </li>
@@ -49,7 +49,7 @@
           </button>
 
           <!-- Shop Badge -->
-          <div class="px-3 py-1 bg-light rounded-pill border d-flex align-items-center gap-2">
+          <div class="shop-pill">
             <i class="bi bi-shop text-primary"></i>
             <span class="small fw-semibold text-dark" id="navShopName">Loading Shop...</span>
           </div>
@@ -57,7 +57,7 @@
           <!-- User Profile & Logout -->
           <div class="dropdown">
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown">
-              <i class="bi bi-person-circle text-secondary"></i>
+              <i class="bi bi-person-circle text-muted"></i>
               <span id="navUserName">Loading User...</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
@@ -73,17 +73,30 @@
 
   <!-- Main POS Screen -->
   <main class="container-fluid px-4 py-3 no-print">
-    <!-- Breadcrumb & Title Section -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-3">
-      <div>
-        <h4 class="fw-bold mb-0">Sales Register & Billing Terminal</h4>
-        <p class="text-muted mb-0 small">
-          <span class="badge bg-success-subtle text-success me-2">Module 2 (Core Feature 2)</span>
-          Owner: <strong>Nazrin Sultana Omi</strong> • Multi-item sales with atomic database transactions and real-time inventory deductions.
-        </p>
+    <!-- Cozy Lofi POS Banner -->
+    <div class="lofi-hero-banner d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="lofi-float-anim d-none d-sm-block">
+          <svg width="56" height="56" viewBox="0 0 60 60" fill="none">
+            <!-- Cozy shopping basket & coffee -->
+            <rect x="10" y="24" width="40" height="26" rx="6" fill="#FFFFFF" stroke="#8C532B" stroke-width="2.5"/>
+            <path d="M18 24 L24 12 M42 24 L36 12" stroke="#8C532B" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="16" y1="34" x2="44" y2="34" stroke="#ECE4DA" stroke-width="2"/>
+            <line x1="16" y1="41" x2="44" y2="41" stroke="#ECE4DA" stroke-width="2"/>
+            <circle cx="30" cy="37" r="4" fill="#D4A373"/>
+            <polygon points="46,14 47,11 50,12 47,13 46,16 45,13 42,12 45,11" fill="#8C532B" class="lofi-sparkle-1"/>
+          </svg>
+        </div>
+        <div>
+          <h4 class="fw-bold mb-1">Point of Sale (POS) Billing Terminal</h4>
+          <p class="text-muted mb-0 small">
+            <span class="badge badge-mocha me-2">Module 2 • Core Feature 2</span>
+            Owner: <strong>Nazrin Sultana Omi</strong> • Multi-item sales with atomic database transactions & instant receipt generation.
+          </p>
+        </div>
       </div>
-      <div>
-        <span class="badge bg-light text-dark border px-3 py-2">
+      <div class="d-none d-md-flex align-items-center gap-2">
+        <span class="badge badge-creamy px-3 py-2">
           <i class="bi bi-shield-check text-success me-1"></i> ACID Atomic Transactions Active
         </span>
       </div>
@@ -93,7 +106,7 @@
       <!-- LEFT COLUMN: Product Catalog & Quick-Add -->
       <div class="col-lg-7 col-xl-8">
         <!-- Search and Categories Filter -->
-        <div class="card border-0 shadow-sm mb-3">
+        <div class="card border-0 shadow-sm mb-3" style="border: 1px solid var(--rp-border) !important; border-radius: var(--rp-radius-md);">
           <div class="card-body p-2">
             <div class="row g-2">
               <div class="col-md-7">
@@ -112,7 +125,7 @@
         </div>
 
         <!-- Products Grid -->
-        <div class="row g-3" id="posProductGrid" style="max-height: calc(100vh - 220px); overflow-y: auto;">
+        <div class="row g-3" id="posProductGrid" style="max-height: calc(100vh - 230px); overflow-y: auto; padding-right: 4px;">
           <div class="col-12 text-center py-5 text-muted">
             <div class="spinner-border text-primary spinner-border-sm me-2"></div>
             Loading available products...
@@ -124,22 +137,24 @@
       <div class="col-lg-5 col-xl-4">
         <div class="cart-terminal">
           <!-- Terminal Header -->
-          <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white" style="border-top-left-radius: var(--rp-radius-lg); border-top-right-radius: var(--rp-radius-lg);">
             <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-receipt text-primary fs-5"></i>
+              <div class="stat-icon bg-primary-subtle text-primary" style="width: 34px; height: 34px; font-size: 1.1rem;">
+                <i class="bi bi-receipt"></i>
+              </div>
               <span class="fw-bold text-dark">Current Order</span>
-              <span class="badge bg-primary rounded-pill" id="cartItemCountBadge">0</span>
+              <span class="badge badge-mocha rounded-pill" id="cartItemCountBadge">0</span>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-danger" id="btnClearCart" title="Clear all items">
+            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" id="btnClearCart" title="Clear all items">
               <i class="bi bi-trash3"></i> Clear
             </button>
           </div>
 
           <!-- Customer Input -->
           <div class="p-3 pb-2 border-bottom bg-white">
-            <label class="form-label small fw-semibold text-muted mb-1">Customer Name / Reference</label>
+            <label class="form-label small fw-semibold text-muted mb-1">Customer Reference</label>
             <div class="input-group input-group-sm">
-              <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
               <input type="text" class="form-control" id="cartCustomerName" placeholder="Walk-in Customer" value="Walk-in Customer">
             </div>
           </div>
@@ -147,7 +162,7 @@
           <!-- Cart Items Container (Scrollable) -->
           <div class="cart-items-container" id="cartItemsList">
             <div class="text-center py-5 text-muted">
-              <i class="bi bi-cart-x fs-1 text-secondary d-block mb-2"></i>
+              <i class="bi bi-cart-x fs-1 text-muted d-block mb-2"></i>
               Your cart is empty.<br>
               <small>Click any product on the left to add items.</small>
             </div>
@@ -163,21 +178,21 @@
             <div class="d-flex justify-content-between align-items-center mb-2 small text-muted">
               <span>Discount (৳):</span>
               <div style="width: 110px;">
-                <input type="number" step="1" min="0" class="form-control form-control-sm text-end" id="cartDiscountInput" placeholder="0" value="0">
+                <input type="number" step="1" min="0" class="form-control form-control-sm text-end font-monospace" id="cartDiscountInput" placeholder="0" value="0">
               </div>
             </div>
 
-            <div class="d-flex justify-content-between mb-3 small text-muted">
+            <div class="d-flex justify-content-between align-items-center mb-3 small text-muted">
               <span>Payment Method:</span>
               <div class="btn-group btn-group-sm" role="group">
                 <input type="radio" class="btn-check" name="cartPaymentMethod" id="payCash" value="cash" checked>
-                <label class="btn btn-outline-secondary" for="payCash">Cash</label>
+                <label class="btn btn-outline-secondary py-1" for="payCash">Cash</label>
 
                 <input type="radio" class="btn-check" name="cartPaymentMethod" id="payCard" value="card">
-                <label class="btn btn-outline-secondary" for="payCard">Card</label>
+                <label class="btn btn-outline-secondary py-1" for="payCard">Card</label>
 
                 <input type="radio" class="btn-check" name="cartPaymentMethod" id="payMfs" value="mfs">
-                <label class="btn btn-outline-secondary" for="payMfs">bKash/MFS</label>
+                <label class="btn btn-outline-secondary py-1" for="payMfs">bKash/MFS</label>
               </div>
             </div>
 
@@ -187,7 +202,7 @@
             </div>
 
             <div class="d-grid">
-              <button class="btn btn-primary py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow" id="btnCheckout" disabled>
+              <button class="btn btn-primary py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" id="btnCheckout" disabled>
                 <i class="bi bi-check2-circle fs-5"></i> Complete Sale & Print Bill
               </button>
             </div>
@@ -202,7 +217,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header no-print">
-          <h5 class="modal-title fw-bold"><i class="bi bi-printer me-2"></i> Sales Invoice Receipt</h5>
+          <h5 class="modal-title fw-bold"><i class="bi bi-printer me-2 text-primary"></i> Sales Invoice Receipt</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-4">
@@ -265,7 +280,7 @@
               <div class="receipt-divider"></div>
               <div class="d-flex justify-content-between fs-6 fw-bold">
                 <span>GRAND TOTAL:</span>
-                <span class="font-monospace" id="rcptGrandTotal">৳0.00</span>
+                <span class="font-monospace text-primary" id="rcptGrandTotal">৳0.00</span>
               </div>
               <div class="d-flex justify-content-between mt-1 text-muted">
                 <span>Payment Method:</span>
@@ -281,8 +296,8 @@
           </div>
         </div>
         <div class="modal-footer bg-light no-print">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close & New Sale</button>
-          <button type="button" class="btn btn-primary" onclick="window.print()">
+          <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Close & New Sale</button>
+          <button type="button" class="btn btn-primary rounded-pill" onclick="window.print()">
             <i class="bi bi-printer me-1"></i> Print Receipt
           </button>
         </div>
@@ -295,12 +310,12 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold"><i class="bi bi-clock-history me-2"></i> Past Sales Transactions</h5>
+          <h5 class="modal-title fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i> Past Sales Transactions</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-4">
           <div class="input-group mb-3">
-            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
             <input type="text" class="form-control" id="historySearchInput" placeholder="Search by invoice number or customer name...">
           </div>
 
@@ -325,7 +340,7 @@
           </div>
         </div>
         <div class="modal-footer bg-light">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
